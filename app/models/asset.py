@@ -22,3 +22,24 @@ class ImageAsset(BaseModel):
                 "provider": "openai-dalle-3"
             }
         }
+
+class VideoAsset(BaseModel):
+    id: Optional[str] = Field(None, alias="_id", description="MongoDB ID")
+    scenario_id: str = Field(..., description="ID of the parent Scenario")
+    image_asset_id: str = Field(..., description="ID of the source image asset")
+    video_url: str = Field(..., description="Local path or remote URL of the generated video")
+    provider: str = Field(..., description="Provider used (e.g., runway, mock)")
+    status: str = Field("pending", description="pending, completed, failed")
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+    class Config:
+        populate_by_name = True
+        json_schema_extra = {
+            "example": {
+                "scenario_id": "scen_12345",
+                "image_asset_id": "img_123",
+                "video_url": "/static/videos/vid_123.mp4",
+                "provider": "mock",
+                "status": "completed"
+            }
+        }
