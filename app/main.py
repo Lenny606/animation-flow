@@ -5,7 +5,7 @@ from app.core.error_handling import http_error_handler, global_exception_handler
 from fastapi.exceptions import HTTPException
 from app.db.mongodb import db, MongoDB
 from app.db.redis import redis_client
-from app.routers import auth, agent, scenarios
+from app.routers import auth, agent, scenarios, assets
 from contextlib import asynccontextmanager
 
 settings = get_settings()
@@ -32,6 +32,7 @@ app.add_exception_handler(Exception, global_exception_handler)
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
 app.include_router(agent.router, prefix="/agent", tags=["agent"])
 app.include_router(scenarios.router)
+app.include_router(assets.router)
 
 @app.get("/")
 async def root():
