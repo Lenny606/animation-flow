@@ -1,13 +1,43 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // EP will be added later as per user request
-        console.log('Login attempt:', { email, password });
+        setError('');
+        setIsLoading(true);
+
+        try {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.detail || 'Login failed');
+            }
+
+            // Store token in localStorage
+            localStorage.setItem('token', data.access_token);
+            console.log('Login successful');
+            navigate('/home');
+        } catch (err) {
+            console.error('Login error:', err);
+            setError(err.message);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -15,6 +45,7 @@ const Login = () => {
             <div style={styles.card}>
                 <h2 style={styles.title}>Login</h2>
                 <form onSubmit={handleSubmit} style={styles.form}>
+                    {error && <div style={styles.error}>{error}</div>}
                     <div style={styles.inputGroup}>
                         <label htmlFor="email" style={styles.label}>Email</label>
                         <input
@@ -25,6 +56,7 @@ const Login = () => {
                             required
                             style={styles.input}
                             placeholder="Enter your email"
+                            disabled={isLoading}
                         />
                     </div>
                     <div style={styles.inputGroup}>
@@ -37,10 +69,11 @@ const Login = () => {
                             required
                             style={styles.input}
                             placeholder="Enter your password"
+                            disabled={isLoading}
                         />
                     </div>
-                    <button type="submit" style={styles.button}>
-                        Sign In
+                    <button type="submit" style={styles.button} disabled={isLoading}>
+                        {isLoading ? 'Signing In...' : 'Sign In'}
                     </button>
                 </form>
             </div>
@@ -100,6 +133,16 @@ const styles = {
         cursor: 'pointer',
         marginTop: '1rem',
         transition: 'background-color 0.2s',
+    },
+    error: {
+        color: '#dc3545',
+        backgroundColor: '#f8d7da',
+        border: '1px solid #f5c6cb',
+        padding: '0.75rem',
+        borderRadius: '4px',
+        marginBottom: '1rem',
+        textAlign: 'center',
+        fontSize: '0.9rem',
     },
 };
 
