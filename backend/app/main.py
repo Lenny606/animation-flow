@@ -36,27 +36,23 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Robust CORS configuration
-allowed_origins = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "https://animation-flow-lac.vercel.app"
-]
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    # Log ALL incoming requests for debugging
+    origin = request.headers.get("origin")
+    method = request.method
+    path = request.url.path
+    logger.info(f"DEBUG: {method} request to {path} from origin: {origin}")
+    response = await call_next(request)
+    return response
 
-# Add any additional origins from settings
-for origin in settings.cors_origins_list:
-    if origin not in allowed_origins:
-        allowed_origins.append(origin)
-
+# Ultra-permissive CORS for diagnostic purposes
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allowed_origins,
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
-    expose_headers=["*"],
 )
 
 app.add_exception_handler(HTTPException, http_error_handler)
@@ -71,3 +67,5 @@ app.include_router(video.router)
 @app.get("/")
 async def root():
     return {"message": "Welcome to AI Orchestration API"}
+
+
