@@ -37,20 +37,33 @@ app = FastAPI(
 )
 
 @app.middleware("http")
-async def log_requests(request: Request, call_next):
-    # Log ALL incoming requests for debugging
-    origin = request.headers.get("origin")
-    method = request.method
-    path = request.url.path
-    logger.info(f"DEBUG: {method} request to {path} from origin: {origin}")
+async def cors_handler(request: Request, call_next):
+    # Handle preflight OPTIONS requests manually as a fallback
+    if request.method == "OPTIONS":
+        return JSONResponse(
+            content="OK",
+            headers={
+                "Access-Control-Allow-Origin": "https://animation-flow-lac.vercel.app",
+                "Access-Control-Allow-Methods": "*",
+                "Access-Control-Allow-Headers": "*",
+                "Access-Control-Allow-Credentials": "true",
+            },
+        )
+    
     response = await call_next(request)
+    
+    # Add headers to all responses if not present
+    if "Access-Control-Allow-Origin" not in response.headers:
+        response.headers["Access-Control-Allow-Origin"] = "https://animation-flow-lac.vercel.app"
+    response.headers["Access-Control-Allow-Credentials"] = "true"
+    
     return response
 
-# Ultra-permissive CORS for diagnostic purposes
+# Standard CORSMiddleware as the primary handler
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=False,
+    allow_origins=["https://animation-flow-lac.vercel.app", "http://localhost:5173"],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
