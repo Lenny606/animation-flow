@@ -14,6 +14,15 @@ class RedisClient:
             logger.info("Connected to Redis")
         except Exception as e:
             logger.error(f"Could not connect to Redis: {e}")
+            try:
+                import fakeredis.aioredis
+                logger.warning("Falling back to FakeRedis (in-memory)")
+                self.client = fakeredis.aioredis.FakeRedis(decode_responses=True)
+                await self.client.ping()
+                logger.info("Connected to FakeRedis")
+            except ImportError:
+                logger.error("FakeRedis not installed, cannot fallback.")
+                raise e
 
     async def close(self):
         if self.client:

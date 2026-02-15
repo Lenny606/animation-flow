@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 const GenerateImage = () => {
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
-    const [step, setStep] = useState(1); // 1: Form, 2: Scenario Ready, 3: Images Ready
+    const [step, setStep] = useState(1); // 1: Form, 2: Scenario Ready, 3: Images Ready, 4: Plan Review, 5: Result
     const [error, setError] = useState('');
 
     // Form State
@@ -18,6 +18,8 @@ const GenerateImage = () => {
 
     const [scenario, setScenario] = useState(null);
     const [images, setImages] = useState([]);
+    const [plan, setPlan] = useState(null);
+    const [videoAssets, setVideoAssets] = useState([]);
 
     const getAuthHeaders = () => {
         const token = localStorage.getItem('token');
@@ -81,6 +83,66 @@ const GenerateImage = () => {
 
             setImages(data);
             setStep(3);
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleGeneratePlan = async () => {
+        setIsLoading(true);
+        setError('');
+
+        try {
+            const apiUrl = import.meta.env.VITE_API_URL || '';
+            const normalizedApiUrl = apiUrl.startsWith('http') ? apiUrl : `https://${apiUrl}`;
+
+            // Prepare request for video planning
+            const requestBody = {
+                scenario_id: scenario.id || "temp-id",
+                image_assets: images,
+                provider: "mock", // Default for now
+                generate_voiceover: false
+            };
+
+            const response = await fetch(`${normalizedApiUrl}/video/plan`, {
+                method: 'POST',
+                headers: getAuthHeaders(),
+                body: JSON.stringify(requestBody),
+            });
+
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.detail || 'Failed to generate plan');
+
+            setPlan(data);
+            setStep(4);
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleExecutePlan = async () => {
+        setIsLoading(true);
+        setError('');
+
+        try {
+            const apiUrl = import.meta.env.VITE_API_URL || '';
+            const normalizedApiUrl = apiUrl.startsWith('http') ? apiUrl : `https://${apiUrl}`;
+
+            const response = await fetch(`${normalizedApiUrl}/video/execute`, {
+                method: 'POST',
+                headers: getAuthHeaders(),
+                body: JSON.stringify({ plan_id: plan.plan_id }),
+            });
+
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.detail || 'Failed to execute plan');
+
+            setVideoAssets(data);
+            setStep(5);
         } catch (err) {
             setError(err.message);
         } finally {
@@ -153,14 +215,58 @@ const GenerateImage = () => {
     );
 
     const renderImages = () => (
-        <div style={styles.imageGrid}>
-            {images.map((img, idx) => (
-                <div key={idx} style={styles.imageCard}>
-                    <img src={img.image_url} alt={`Scene ${img.order}`} style={styles.image} />
-                    <p style={styles.imageLabel}>Frame {img.order}</p>
-                </div>
-            ))}
-            <button onClick={() => setStep(1)} style={styles.primaryButton}>Start Over</button>
+        <div style={styles.stepContainer}>
+            <div style={styles.imageGrid}>
+                {images.map((img, idx) => (
+                    <div key={idx} style={styles.imageCard}>
+                        <img src={img.image_url} alt={`Scene ${img.order}`} style={styles.image} />
+                        <p style={styles.imageLabel}>Frame {img.order}</p>
+                    </div>
+                ))}
+            </div>
+            <div style={styles.buttonGroupCenter}>
+                <button onClick={() => setStep(1)} style={styles.secondaryButton}>Start Over</button>
+                <button onClick={handleGeneratePlan} style={styles.primaryButton} disabled={isLoading}>
+                    {isLoading ? 'Generating Plan...' : 'Generate Video Plan'}
+                </button>
+            </div>
+        </div>
+    );
+
+    const renderPlan = () => (
+        <div style={styles.scenarioPreview}>
+            <h3 style={styles.subTitle}>Review Execution Plan</h3>
+            <p style={styles.description}>The AI Agent has prepared the following plan. Please confirm execution.</p>
+            <div style={styles.sceneList}>
+                {plan.script.map((step, idx) => (
+                    <div key={idx} style={styles.sceneCard}>
+                        <strong>Step {idx + 1}:</strong> {step}
+                    </div>
+                ))}
+            </div>
+            <div style={styles.buttonGroup}>
+                <button onClick={() => setStep(3)} style={styles.secondaryButton}>Back to Images</button>
+                <button onClick={handleExecutePlan} style={styles.primaryButton} disabled={isLoading}>
+                    {isLoading ? 'Executing Plan...' : 'Confirm & Execute'}
+                </button>
+            </div>
+        </div>
+    );
+
+    const renderFinalVideo = () => (
+        <div style={styles.stepContainer}>
+            <h3 style={styles.subTitleSuccess}>Video Generation Complete!</h3>
+            <div style={styles.videoGrid}>
+                {videoAssets.map((asset, idx) => (
+                    <div key={idx} style={styles.videoCard}>
+                        <video controls style={styles.video} src={asset.video_url}></video>
+                        <p style={styles.imageLabel}>Format: {asset.provider}</p>
+                    </div>
+                ))}
+            </div>
+            <div style={styles.buttonGroupCenter}>
+                <button onClick={() => setStep(1)} style={styles.primaryButton}>Create New Project</button>
+            </div>
         </div>
     );
 
@@ -172,7 +278,9 @@ const GenerateImage = () => {
                 <p style={styles.description}>
                     {step === 1 && "Start by describing your vision."}
                     {step === 2 && "The AI has planned your storyboard. Ready to generate?"}
-                    {step === 3 && "Your AI assets are ready!"}
+                    {step === 3 && "Your AI assets are ready. Proceed to video planning?"}
+                    {step === 4 && "Review the Agent's plan before execution."}
+                    {step === 5 && "Here is your generated video content."}
                 </p>
 
                 {error && <div style={styles.error}>{error}</div>}
@@ -180,6 +288,8 @@ const GenerateImage = () => {
                 {step === 1 && renderForm()}
                 {step === 2 && renderScenario()}
                 {step === 3 && renderImages()}
+                {step === 4 && renderPlan()}
+                {step === 5 && renderFinalVideo()}
             </div>
         </div>
     );
@@ -344,6 +454,44 @@ const styles = {
         fontSize: '0.75rem',
         color: '#94a3b8',
         textAlign: 'center',
+    },
+    stepContainer: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '2rem',
+    },
+    buttonGroupCenter: {
+        display: 'flex',
+        gap: '1rem',
+        justifyContent: 'center',
+        marginTop: '1rem',
+    },
+    subTitleSuccess: {
+        fontSize: '1.5rem',
+        color: '#10b981',
+        marginBottom: '1.5rem',
+        textAlign: 'center',
+        fontWeight: '700',
+    },
+    videoGrid: {
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+        gap: '2rem',
+        marginBottom: '2rem',
+    },
+    videoCard: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '0.75rem',
+        backgroundColor: '#f8fafc',
+        padding: '1rem',
+        borderRadius: '16px',
+    },
+    video: {
+        width: '100%',
+        aspectRatio: '16/9',
+        borderRadius: '8px',
+        backgroundColor: '#000',
     }
 };
 
