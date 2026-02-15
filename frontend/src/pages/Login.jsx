@@ -13,8 +13,14 @@ const Login = () => {
         setError('');
         setIsLoading(true);
 
+        const apiUrl = import.meta.env.VITE_API_URL || '';
+        const fullUrl = `${apiUrl}/auth/login`;
+
+        console.log('API URL from env:', apiUrl);
+        console.log('Attempting fetch to:', fullUrl);
+
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
+            const response = await fetch(fullUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
