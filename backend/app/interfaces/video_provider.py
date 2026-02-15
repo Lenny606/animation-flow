@@ -50,7 +50,7 @@ class RunwayVideoProvider(BaseVideoProvider):
 
 class VideoProviderFactory:
     @staticmethod
-    def get_provider(provider_name: str = "mock") -> BaseImageProvider:
+    def get_provider(provider_name: str = "mock") -> BaseVideoProvider:
         if provider_name == "mock":
             return MockVideoProvider()
         elif provider_name == "runway":
