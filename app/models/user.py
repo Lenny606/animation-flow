@@ -25,6 +25,9 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     password: str
 
+class UserLogin(UserBase):
+    password: str
+
 class UserInDB(UserBase):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
     hashed_password: str
