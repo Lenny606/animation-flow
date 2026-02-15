@@ -17,11 +17,15 @@ class Settings(BaseSettings):
 
     BACKEND_URL: str = "http://localhost:8000"
     FRONTEND_URL: str = "http://localhost:5173"
-    CORS_ORIGINS: str = "http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000,http://127.0.0.1:3000"
+    CORS_ORIGINS: str = "http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000,http://127.0.0.1:3000,https://animation-flow-lac.vercel.app"
 
     @property
     def cors_origins_list(self) -> list[str]:
-        return [origin.strip() for origin in self.CORS_ORIGINS.split(",")]
+        if not self.CORS_ORIGINS:
+            return []
+        # Strip potential quotes and split
+        raw_origins = self.CORS_ORIGINS.strip('"').strip("'").strip()
+        return [origin.strip() for origin in raw_origins.split(",") if origin.strip()]
 
     class Config:
         env_file = ".env"
