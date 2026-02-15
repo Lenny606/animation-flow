@@ -27,29 +27,29 @@ const Home = () => {
                     <div style={styles.point}>
                         <span style={styles.number}>1</span>
                         <div>
-                            <strong style={styles.pointTitle}>Understanding</strong>
-                            <p style={styles.pointText}>The AI agent receives your request and analyzes exactly what you need to achieve.</p>
+                            <strong style={styles.pointTitle}>Scene Analysis</strong>
+                            <p style={styles.pointText}>The AI agent analyzes your prompt to understand the visual style, motion, and atmosphere you want to create.</p>
                         </div>
                     </div>
                     <div style={styles.point}>
                         <span style={styles.number}>2</span>
                         <div>
-                            <strong style={styles.pointTitle}>Planning</strong>
-                            <p style={styles.pointText}>It breaks down the complex task into smaller, logical steps to ensure accuracy.</p>
+                            <strong style={styles.pointTitle}>Sequential Planning</strong>
+                            <p style={styles.pointText}>It plans the frame-by-frame progression and chooses the best AI models for consistency and detail.</p>
                         </div>
                     </div>
                     <div style={styles.point}>
                         <span style={styles.number}>3</span>
                         <div>
-                            <strong style={styles.pointTitle}>Action</strong>
-                            <p style={styles.pointText}>The agent executes the plan by communicating with backend services and AI models.</p>
+                            <strong style={styles.pointTitle}>Drafting & Generation</strong>
+                            <p style={styles.pointText}>The agent communicates with high-performance video engines to render the animation flow.</p>
                         </div>
                     </div>
                     <div style={styles.point}>
                         <span style={styles.number}>4</span>
                         <div>
-                            <strong style={styles.pointTitle}>Refinement</strong>
-                            <p style={styles.pointText}>Finally, it double-checks the results and presents you with the finished work.</p>
+                            <strong style={styles.pointTitle}>Final Rendering</strong>
+                            <p style={styles.pointText}>Finally, it optimizes the video quality, ensuring smooth transitions and the perfect final result.</p>
                         </div>
                     </div>
                 </div>
