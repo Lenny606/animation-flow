@@ -13,8 +13,16 @@ settings = get_settings()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
-    db.connect()
-    await redis_client.connect()
+    try:
+        db.connect()
+    except Exception as e:
+        logger.error(f"Failed to connect to MongoDB during startup: {e}")
+    
+    try:
+        await redis_client.connect()
+    except Exception as e:
+        logger.error(f"Failed to connect to Redis during startup: {e}")
+    
     yield
     # Shutdown
     db.close()
@@ -28,18 +36,27 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Standardize origins and add common variations
-allowed_origins = settings.cors_origins_list
-if "https://animation-flow-lac.vercel.app" not in allowed_origins:
-    allowed_origins.append("https://animation-flow-lac.vercel.app")
+# Robust CORS configuration
+allowed_origins = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "https://animation-flow-lac.vercel.app"
+]
+
+# Add any additional origins from settings
+for origin in settings.cors_origins_list:
+    if origin not in allowed_origins:
+        allowed_origins.append(origin)
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
-    allow_origin_regex=r"https://.*-lac\.vercel\.app|https://animation-flow-lac\.vercel\.app",
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-    allow_headers=["Content-Type", "Authorization", "Accept", "X-Requested-With"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 app.add_exception_handler(HTTPException, http_error_handler)
