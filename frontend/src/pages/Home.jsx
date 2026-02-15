@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Modal from '../components/Modal';
 
 const Home = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const navigate = useNavigate();
 
     return (
         <div style={styles.container}>
@@ -10,12 +12,21 @@ const Home = () => {
                 <h1 style={styles.title}>Welcome to Animation Flow</h1>
                 <p style={styles.text}>This is your simple responsive homepage.</p>
 
-                <button
-                    onClick={() => setIsModalOpen(true)}
-                    style={styles.linkButton}
-                >
-                    How does it work?
-                </button>
+                <div style={styles.buttonGroup}>
+                    <button
+                        onClick={() => navigate('/generate')}
+                        style={styles.ctaButton}
+                    >
+                        Start Generation
+                    </button>
+
+                    <button
+                        onClick={() => setIsModalOpen(true)}
+                        style={styles.linkButton}
+                    >
+                        How does it work?
+                    </button>
+                </div>
             </div>
 
             <Modal
@@ -93,14 +104,34 @@ const styles = {
     linkButton: {
         background: 'none',
         border: 'none',
-        color: '#3b82f6',
-        fontSize: '1rem',
-        fontWeight: '600',
+        color: '#64748b',
+        fontSize: '0.95rem',
+        fontWeight: '500',
         cursor: 'pointer',
         textDecoration: 'underline',
         textUnderlineOffset: '4px',
         transition: 'color 0.2s',
         padding: '0.5rem 1rem',
+    },
+    buttonGroup: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '1rem',
+        alignItems: 'center',
+    },
+    ctaButton: {
+        backgroundColor: '#3b82f6',
+        color: 'white',
+        border: 'none',
+        borderRadius: '12px',
+        padding: '0.75rem 2rem',
+        fontSize: '1.1rem',
+        fontWeight: '700',
+        cursor: 'pointer',
+        boxShadow: '0 4px 6px -1px rgba(59, 130, 246, 0.3)',
+        transition: 'transform 0.2s, background-color 0.2s',
+        width: '100%',
+        maxWidth: '250px',
     },
     modalContent: {
         display: 'flex',
