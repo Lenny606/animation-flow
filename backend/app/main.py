@@ -28,12 +28,18 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+# Standardize origins and add common variations
+allowed_origins = settings.cors_origins_list
+if "https://animation-flow-lac.vercel.app" not in allowed_origins:
+    allowed_origins.append("https://animation-flow-lac.vercel.app")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origins_list,
+    allow_origins=allowed_origins,
+    allow_origin_regex=r"https://.*-lac\.vercel\.app|https://animation-flow-lac\.vercel\.app",
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+    allow_headers=["Content-Type", "Authorization", "Accept", "X-Requested-With"],
 )
 
 app.add_exception_handler(HTTPException, http_error_handler)
