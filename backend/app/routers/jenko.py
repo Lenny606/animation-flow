@@ -30,3 +30,21 @@ async def create_image_data(image_data: ImageData, db: AsyncIOMotorDatabase = De
         return created_image
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/export", response_model=list[ImageData])
+async def export_image_data(db: AsyncIOMotorDatabase = Depends(get_database)):
+    """
+    Get all image data from the database.
+    """
+    try:
+        cursor = db.image_data.find()
+        images = await cursor.to_list(length=1000)
+        
+        # Convert _id to string for each document
+        for image in images:
+            image["_id"] = str(image["_id"])
+            
+        return images
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+

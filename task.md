@@ -5,3 +5,4 @@
     - [x] Create `app/routers/jenko.py`
     - [x] Register router in `app/main.py`
     - [x] Verify endpoint
+    - [x] Add `jenko/export` endpoint for database export
