@@ -1,0 +1,7 @@
+- [ ] add OpenAi api key to the project
+- [ ] continue with human in the loop for video generation
+- [x] Create `jenko/` endpoint and `ImageData` model
+    - [x] Create `app/models/image_data.py`
+    - [x] Create `app/routers/jenko.py`
+    - [x] Register router in `app/main.py`
+    - [x] Verify endpoint

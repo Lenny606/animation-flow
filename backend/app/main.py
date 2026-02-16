@@ -7,6 +7,7 @@ from fastapi.exceptions import HTTPException
 from app.db.mongodb import db, MongoDB
 from app.db.redis import redis_client
 from app.routers import auth, agent, scenarios, assets, video, jenko
+from app.core.logging import logger
 from contextlib import asynccontextmanager
 
 settings = get_settings()
