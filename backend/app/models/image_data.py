@@ -9,7 +9,7 @@ class ImageData(BaseModel):
     description: Optional[str] = Field(None, description="Description of the image")
     medium: Optional[str] = Field(None, description="Medium of the art")
     year: Optional[str] = Field(None, description="Year of creation")
-    tags: Optional[list[str]] = Field(default_factory=list, description="Tags for the image")
+    tags: Optional[list[str]] = Field(None, description="Tags for the image")
     width: Optional[int] = Field(None, description="Width of the image")
     height: Optional[int] = Field(None, description="Height of the image")
     src: Optional[str] = Field(None, description="Source URL of the image")
