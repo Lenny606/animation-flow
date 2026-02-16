@@ -1,7 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from app.db.mongodb import get_database
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from app.models.image_data import ImageData
+from app.core.rate_limit import limiter
 
 router = APIRouter(
     prefix="/jenko",
@@ -10,7 +11,8 @@ router = APIRouter(
 )
 
 @router.post("/", response_model=ImageData)
-async def create_image_data(image_data: ImageData, db: AsyncIOMotorDatabase = Depends(get_database)):
+@limiter.limit("5/minute")
+async def create_image_data(request: Request, image_data: ImageData, db: AsyncIOMotorDatabase = Depends(get_database)):
     """
     Save image data to the database.
     """
@@ -32,7 +34,8 @@ async def create_image_data(image_data: ImageData, db: AsyncIOMotorDatabase = De
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/export", response_model=list[ImageData])
-async def export_image_data(db: AsyncIOMotorDatabase = Depends(get_database)):
+@limiter.limit("5/minute")
+async def export_image_data(request: Request, db: AsyncIOMotorDatabase = Depends(get_database)):
     """
     Get all image data from the database.
     If multiple entries with the same filename exist, only the newest one is returned.
