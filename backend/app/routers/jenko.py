@@ -35,9 +35,22 @@ async def create_image_data(image_data: ImageData, db: AsyncIOMotorDatabase = De
 async def export_image_data(db: AsyncIOMotorDatabase = Depends(get_database)):
     """
     Get all image data from the database.
+    If multiple entries with the same filename exist, only the newest one is returned.
     """
     try:
-        cursor = db.image_data.find()
+        pipeline = [
+            {"$sort": {"created_at": -1}},  # Sort descending by creation time
+            {
+                "$group": {
+                    "_id": "$filename",  # Group by filename
+                    "newest_doc": {"$first": "$$ROOT"}  # Take the first (newest) document in each group
+                }
+            },
+            {"$replaceRoot": {"newRoot": "$newest_doc"}},
+            {"$sort": {"created_at": -1}}  # Final sort for results
+        ]
+        
+        cursor = db.image_data.aggregate(pipeline)
         images = await cursor.to_list(length=1000)
         
         # Convert _id to string for each document
