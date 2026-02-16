@@ -12,6 +12,7 @@ class ImageData(BaseModel):
     tags: Optional[list[str]] = Field(None, description="Tags for the image")
     width: Optional[int] = Field(None, description="Width of the image")
     height: Optional[int] = Field(None, description="Height of the image")
+    category: Optional[str] = Field(None, description="Category of the image")
     src: Optional[str] = Field(None, description="Source URL of the image")
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
