@@ -10,8 +10,6 @@ const Home = () => {
         <div style={styles.container}>
             <div style={styles.content}>
                 <h1 style={styles.title}>Welcome to Animation Flow</h1>
-                <p style={styles.text}>This is your simple responsive homepage.</p>
-
                 <div style={styles.buttonGroup}>
                     <button
                         onClick={() => navigate('/generate')}
