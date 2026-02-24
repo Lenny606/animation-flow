@@ -6,7 +6,7 @@ from app.core.error_handling import http_error_handler, global_exception_handler
 from fastapi.exceptions import HTTPException
 from app.db.mongodb import db, MongoDB
 from app.db.redis import redis_client
-from app.routers import auth, agent, scenarios, assets, video, jenko
+from app.routers import auth, agent, scenarios, assets, video, jenko, songs
 from app.core.logging import logger
 from app.core.rate_limit import limiter
 from slowapi import _rate_limit_exceeded_handler
@@ -93,6 +93,7 @@ app.include_router(scenarios.router)
 app.include_router(assets.router)
 app.include_router(video.router)
 app.include_router(jenko.router)
+app.include_router(songs.router)
 
 @app.get("/")
 async def root():

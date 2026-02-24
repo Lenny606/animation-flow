@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const GenerateImage = () => {
@@ -6,6 +6,8 @@ const GenerateImage = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [step, setStep] = useState(1); // 1: Form, 2: Scenario Ready, 3: Images Ready, 4: Plan Review, 5: Result
     const [error, setError] = useState('');
+    const [songs, setSongs] = useState([]);
+    const [showSongSelect, setShowSongSelect] = useState(false);
 
     // Form State
     const [formData, setFormData] = useState({
@@ -27,6 +29,38 @@ const GenerateImage = () => {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
         };
+    };
+
+    const fetchSongs = async () => {
+        try {
+            const apiUrl = import.meta.env.VITE_API_URL || '';
+            const normalizedApiUrl = apiUrl.startsWith('http') ? apiUrl : `https://${apiUrl}`;
+            const response = await fetch(`${normalizedApiUrl}/songs/`, {
+                headers: getAuthHeaders(),
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setSongs(data);
+            }
+        } catch (err) {
+            console.error('Failed to fetch songs:', err);
+        }
+    };
+
+    useEffect(() => {
+        fetchSongs();
+    }, []);
+
+    const handleSongSelect = (e) => {
+        const songId = e.target.value;
+        const selectedSong = songs.find(s => s._id === songId || s.id === songId);
+        if (selectedSong) {
+            setFormData(prev => ({
+                ...prev,
+                topic: `${selectedSong.title}: ${selectedSong.text.substring(0, 200)}`
+            }));
+            setShowSongSelect(false);
+        }
     };
 
     const handleInputChange = (e) => {
@@ -153,7 +187,32 @@ const GenerateImage = () => {
     const renderForm = () => (
         <form onSubmit={handleGenerateScenario} style={styles.form}>
             <div style={styles.inputGroup}>
-                <label style={styles.label}>Topic</label>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <label style={styles.label}>Topic</label>
+                    {songs.length > 0 && (
+                        <button
+                            type="button"
+                            onClick={() => setShowSongSelect(!showSongSelect)}
+                            style={styles.linkButton}
+                        >
+                            {showSongSelect ? 'Cancel' : 'Select from saved songs'}
+                        </button>
+                    )}
+                </div>
+                {showSongSelect && (
+                    <select
+                        onChange={handleSongSelect}
+                        style={styles.songSelect}
+                        defaultValue=""
+                    >
+                        <option value="" disabled>-- Pick a song --</option>
+                        {songs.map(song => (
+                            <option key={song._id || song.id} value={song._id || song.id}>
+                                {song.title} ({song.category})
+                            </option>
+                        ))}
+                    </select>
+                )}
                 <input
                     name="topic"
                     value={formData.topic}
@@ -492,6 +551,24 @@ const styles = {
         aspectRatio: '16/9',
         borderRadius: '8px',
         backgroundColor: '#000',
+    },
+    linkButton: {
+        background: 'none',
+        border: 'none',
+        color: '#3b82f6',
+        fontSize: '0.75rem',
+        fontWeight: '600',
+        cursor: 'pointer',
+        padding: '0',
+        textDecoration: 'underline',
+    },
+    songSelect: {
+        padding: '0.75rem 1rem',
+        borderRadius: '12px',
+        border: '1px solid #3b82f6',
+        fontSize: '0.9rem',
+        backgroundColor: '#eff6ff',
+        marginBottom: '0.5rem',
     }
 };
 
