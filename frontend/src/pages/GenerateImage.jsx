@@ -188,7 +188,7 @@ const GenerateImage = () => {
         <form onSubmit={handleGenerateScenario} style={styles.form}>
             <div style={styles.inputGroup}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <label style={styles.label}>Topic</label>
+                    <label htmlFor="topic" style={styles.label}>Topic</label>
                     {songs.length > 0 && (
                         <button
                             type="button"
@@ -201,6 +201,7 @@ const GenerateImage = () => {
                 </div>
                 {showSongSelect && (
                     <select
+                        aria-label="Select a song"
                         onChange={handleSongSelect}
                         style={styles.songSelect}
                         defaultValue=""
@@ -214,6 +215,7 @@ const GenerateImage = () => {
                     </select>
                 )}
                 <input
+                    id="topic"
                     name="topic"
                     value={formData.topic}
                     onChange={handleInputChange}
@@ -224,8 +226,9 @@ const GenerateImage = () => {
             </div>
             <div style={styles.row}>
                 <div style={styles.inputGroup}>
-                    <label style={styles.label}>Style</label>
+                    <label htmlFor="style" style={styles.label}>Style</label>
                     <select
+                        id="style"
                         name="style"
                         value={formData.style}
                         onChange={handleInputChange}
@@ -238,8 +241,9 @@ const GenerateImage = () => {
                     </select>
                 </div>
                 <div style={styles.inputGroup}>
-                    <label style={styles.label}>Duration (sec)</label>
+                    <label htmlFor="duration" style={styles.label}>Duration (sec)</label>
                     <input
+                        id="duration"
                         type="number"
                         name="duration"
                         value={formData.duration}
@@ -248,7 +252,15 @@ const GenerateImage = () => {
                     />
                 </div>
             </div>
-            <button type="submit" style={styles.primaryButton} disabled={isLoading}>
+            <button
+                type="submit"
+                style={{
+                    ...styles.primaryButton,
+                    opacity: isLoading ? 0.7 : 1,
+                    cursor: isLoading ? 'not-allowed' : 'pointer',
+                }}
+                disabled={isLoading}
+            >
                 {isLoading ? 'Planning Storyboard...' : 'Generate Storyboard'}
             </button>
         </form>
@@ -266,7 +278,15 @@ const GenerateImage = () => {
             </div>
             <div style={styles.buttonGroup}>
                 <button onClick={() => setStep(1)} style={styles.secondaryButton}>Edit Prompt</button>
-                <button onClick={handleGenerateImages} style={styles.primaryButton} disabled={isLoading}>
+                <button
+                    onClick={handleGenerateImages}
+                    style={{
+                        ...styles.primaryButton,
+                        opacity: isLoading ? 0.7 : 1,
+                        cursor: isLoading ? 'not-allowed' : 'pointer',
+                    }}
+                    disabled={isLoading}
+                >
                     {isLoading ? 'Generating Images...' : 'Generate AI Images'}
                 </button>
             </div>
@@ -285,7 +305,15 @@ const GenerateImage = () => {
             </div>
             <div style={styles.buttonGroupCenter}>
                 <button onClick={() => setStep(1)} style={styles.secondaryButton}>Start Over</button>
-                <button onClick={handleGeneratePlan} style={styles.primaryButton} disabled={isLoading}>
+                <button
+                    onClick={handleGeneratePlan}
+                    style={{
+                        ...styles.primaryButton,
+                        opacity: isLoading ? 0.7 : 1,
+                        cursor: isLoading ? 'not-allowed' : 'pointer',
+                    }}
+                    disabled={isLoading}
+                >
                     {isLoading ? 'Generating Plan...' : 'Generate Video Plan'}
                 </button>
             </div>
@@ -305,7 +333,15 @@ const GenerateImage = () => {
             </div>
             <div style={styles.buttonGroup}>
                 <button onClick={() => setStep(3)} style={styles.secondaryButton}>Back to Images</button>
-                <button onClick={handleExecutePlan} style={styles.primaryButton} disabled={isLoading}>
+                <button
+                    onClick={handleExecutePlan}
+                    style={{
+                        ...styles.primaryButton,
+                        opacity: isLoading ? 0.7 : 1,
+                        cursor: isLoading ? 'not-allowed' : 'pointer',
+                    }}
+                    disabled={isLoading}
+                >
                     {isLoading ? 'Executing Plan...' : 'Confirm & Execute'}
                 </button>
             </div>
