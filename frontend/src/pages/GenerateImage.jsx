@@ -188,7 +188,7 @@ const GenerateImage = () => {
         <form onSubmit={handleGenerateScenario} style={styles.form}>
             <div style={styles.inputGroup}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <label style={styles.label}>Topic</label>
+                    <label htmlFor="topic" style={styles.label}>Topic</label>
                     {songs.length > 0 && (
                         <button
                             type="button"
@@ -204,6 +204,7 @@ const GenerateImage = () => {
                         onChange={handleSongSelect}
                         style={styles.songSelect}
                         defaultValue=""
+                        aria-label="Select a saved song"
                     >
                         <option value="" disabled>-- Pick a song --</option>
                         {songs.map(song => (
@@ -214,6 +215,7 @@ const GenerateImage = () => {
                     </select>
                 )}
                 <input
+                    id="topic"
                     name="topic"
                     value={formData.topic}
                     onChange={handleInputChange}
@@ -224,8 +226,9 @@ const GenerateImage = () => {
             </div>
             <div style={styles.row}>
                 <div style={styles.inputGroup}>
-                    <label style={styles.label}>Style</label>
+                    <label htmlFor="style" style={styles.label}>Style</label>
                     <select
+                        id="style"
                         name="style"
                         value={formData.style}
                         onChange={handleInputChange}
@@ -238,8 +241,9 @@ const GenerateImage = () => {
                     </select>
                 </div>
                 <div style={styles.inputGroup}>
-                    <label style={styles.label}>Duration (sec)</label>
+                    <label htmlFor="duration" style={styles.label}>Duration (sec)</label>
                     <input
+                        id="duration"
                         type="number"
                         name="duration"
                         value={formData.duration}
@@ -413,7 +417,6 @@ const styles = {
         borderRadius: '12px',
         border: '1px solid #e2e8f0',
         fontSize: '1rem',
-        outline: 'none',
         transition: 'border-color 0.2s',
     },
     select: {
