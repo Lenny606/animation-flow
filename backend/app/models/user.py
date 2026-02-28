@@ -1,6 +1,12 @@
 from pydantic import BaseModel, EmailStr, Field
-from typing import Optional
+from typing import Optional, List
 from bson import ObjectId
+from enum import Enum
+
+class UserRole(str, Enum):
+    FREE = "free"
+    PRO = "pro"
+    ADMIN = "admin"
 
 class PyObjectId(ObjectId):
     @classmethod
@@ -21,6 +27,7 @@ class PyObjectId(ObjectId):
 
 class UserBase(BaseModel):
     email: EmailStr = Field(..., description="The user's email address", examples=["user@example.com"])
+    role: UserRole = Field(default=UserRole.FREE, description="The user's role", examples=["free"])
 
 class UserCreate(UserBase):
     password: str = Field(..., description="The user's password", min_length=8, examples=["secretpassword123"])
@@ -46,6 +53,7 @@ class User(UserBase):
         json_schema_extra = {
             "example": {
                 "id": "60d5ecb8b392d011f8871123",
-                "email": "user@example.com"
+                "email": "user@example.com",
+                "role": "free"
             }
         }

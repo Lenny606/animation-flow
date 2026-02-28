@@ -2,9 +2,12 @@ from typing import TypedDict, List, Optional
 from langchain_core.messages import SystemMessage, HumanMessage
 from langchain_core.output_parsers import JsonOutputParser
 from langgraph.graph import StateGraph, END
+from langgraph.checkpoint.memory import MemorySaver
 
-from app.core.llm_factory import LLMFactory
-from app.core.agent.prompts import PromptService
+from app.core.llm_factory import LLMFactory, get_llm_factory
+from app.core.agent.prompts import PromptService, get_prompt_service
+from app.core.config import get_settings
+from app.db.mongodb import get_database
 from app.models.scenario import Scene, Scenario
 
 # Define Agent State
@@ -24,9 +27,14 @@ class AgentState(TypedDict):
 # Node: Story Generator
 async def generate_story(state: AgentState):
     provider = state.get("llm_provider", "openai")
-    llm = LLMFactory.create_llm(provider=provider, temperature=0.7)
     
-    template = await PromptService.get_story_outline_template()
+    settings = get_settings()
+    llm_factory = get_llm_factory(settings)
+    llm = llm_factory.create_llm(provider=provider, temperature=0.7)
+    
+    db = await get_database()
+    prompt_service = await get_prompt_service(db)
+    template = await prompt_service.get_story_outline_template()
     prompt = template.format(
         topic=state["topic"],
         style=state["style"],
@@ -41,9 +49,13 @@ async def generate_story(state: AgentState):
 async def script_scenes(state: AgentState):
     provider = state.get("llm_provider", "openai")
     # Use json mode if supported, or rely on parsing
-    llm = LLMFactory.create_llm(provider=provider, temperature=0.7)
+    settings = get_settings()
+    llm_factory = get_llm_factory(settings)
+    llm = llm_factory.create_llm(provider=provider, temperature=0.7)
     
-    template = await PromptService.get_scene_scripting_template()
+    db = await get_database()
+    prompt_service = await get_prompt_service(db)
+    template = await prompt_service.get_scene_scripting_template()
     prompt = template.format(story_outline=state["story_outline"])
     
     # We can use PydanticOutputParser or JsonOutputParser
@@ -91,4 +103,5 @@ workflow.add_edge("scene_scripting", "finalize")
 workflow.add_edge("finalize", END)
 
 # Compile the app
-scenario_agent = workflow.compile()
+checkpointer = MemorySaver()
+scenario_agent = workflow.compile(checkpointer=checkpointer)

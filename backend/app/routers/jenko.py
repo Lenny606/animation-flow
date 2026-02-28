@@ -1,65 +1,40 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Request
-from app.db.mongodb import get_database
-from motor.motor_asyncio import AsyncIOMotorDatabase
+from fastapi import APIRouter, Depends, status, Request
 from app.models.image_data import ImageData
-from app.core.rate_limit import limiter
+from app.core.rate_limit import limiter, get_role_limit
+from app.repositories.image_data_repository import ImageDataRepository, get_image_data_repository
+from app.core.error_handling import InternalServerException
 
 router = APIRouter(
-    prefix="/jenko",
     responses={404: {"description": "Not found"}},
 )
 
 @router.post("/", response_model=ImageData, summary="Save image data", description="Stores metadata about a generated or uploaded image in the database.")
-@limiter.limit("5/minute")
-async def create_image_data(request: Request, image_data: ImageData, db: AsyncIOMotorDatabase = Depends(get_database)):
+@limiter.limit(get_role_limit("5/minute", "20/minute", "100/minute"))
+async def create_image_data(
+    request: Request, 
+    image_data: ImageData, 
+    image_data_repo: ImageDataRepository = Depends(get_image_data_repository)
+):
     """
     Save image data to the database.
     """
-    # Exclude _id from invalid data if it's there (though pydantic might handle it, better be safe)
-    # The user provides filename, title, desc. Created_at is default. ID is None.
-    
-    data_dict = image_data.model_dump(by_alias=True, exclude={"id"})
-    
     try:
-        new_image = await db.image_data.insert_one(data_dict)
-        created_image = await db.image_data.find_one({"_id": new_image.inserted_id})
-        
-        # Convert _id to string for response
-        if created_image:
-           created_image["_id"] = str(created_image["_id"])
-           
-        return created_image
+        return await image_data_repo.create(image_data)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise InternalServerException(detail=f"Failed to create image data: {str(e)}")
 
 @router.get("/export", response_model=list[ImageData], summary="Export image data", description="Retrieves all stored image metadata. If multiple entries exist for the same filename, only the most recent one is returned.")
-@limiter.limit("5/minute")
-async def export_image_data(request: Request, db: AsyncIOMotorDatabase = Depends(get_database)):
+@limiter.limit(get_role_limit("10/minute", "50/minute", "200/minute"))
+async def export_image_data(
+    request: Request, 
+    image_data_repo: ImageDataRepository = Depends(get_image_data_repository)
+):
     """
     Get all image data from the database.
     If multiple entries with the same filename exist, only the newest one is returned.
     """
     try:
-        pipeline = [
-            {"$sort": {"created_at": -1}},  # Sort descending by creation time
-            {
-                "$group": {
-                    "_id": "$filename",  # Group by filename
-                    "newest_doc": {"$first": "$$ROOT"}  # Take the first (newest) document in each group
-                }
-            },
-            {"$replaceRoot": {"newRoot": "$newest_doc"}},
-            {"$sort": {"created_at": -1}}  # Final sort for results
-        ]
-        
-        cursor = db.image_data.aggregate(pipeline)
-        images = await cursor.to_list(length=1000)
-        
-        # Convert _id to string for each document
-        for image in images:
-            image["_id"] = str(image["_id"])
-            
-        return images
+        return await image_data_repo.get_newest_per_filename()
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise InternalServerException(detail=f"Failed to export image data: {str(e)}")
 

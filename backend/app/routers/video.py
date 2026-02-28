@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, status, Request
 from pydantic import BaseModel, Field
 from typing import List, Optional
 import uuid
@@ -8,9 +8,12 @@ import redis.asyncio as redis
 from app.core.agent.video_agent import video_agent
 from app.models.asset import ImageAsset, VideoAsset
 from app.db.redis import get_redis
+from app.repositories.asset_repository import VideoAssetRepository, get_video_asset_repository
+from app.core.error_handling import NotFoundException, ForbiddenException, InternalServerException
+from app.core.rate_limit import limiter, get_role_limit
+from app.core.security import get_current_user
 
 router = APIRouter(
-    prefix="/video",
     responses={404: {"description": "Not found"}},
 )
 
@@ -28,7 +31,13 @@ class VideoPlanResponse(BaseModel):
     script: List[str] = Field(..., description="A step-by-step description of the planned generation process", examples=[["Generate video for image 1", "Generate voiceover"]])
 
 @router.post("/plan", response_model=VideoPlanResponse, summary="Create a video generation plan", description="Initializes the video generation process by creating a plan. Returns a plan ID that must be used to execute the generation.")
-async def generate_video_plan(request: VideoGenRequest, redis_conn: redis.Redis = Depends(get_redis)):
+@limiter.limit(get_role_limit("3/minute", "10/minute", "60/minute"))
+async def generate_video_plan(
+    request: Request,
+    video_request: VideoGenRequest, 
+    redis_conn: redis.Redis = Depends(get_redis),
+    current_user: dict = Depends(get_current_user)
+):
     """
     Step 1: Generates a plan (script) for video generation and saves it to Redis.
     """
@@ -36,20 +45,20 @@ async def generate_video_plan(request: VideoGenRequest, redis_conn: redis.Redis 
         plan_id = str(uuid.uuid4())
         
         # Generate a simple "script" or plan description
-        # In a real agent, this might be an LLM call to decide what to do.
-        # For now, we list the actions based on the input images.
         script = []
-        for img in request.image_assets:
-            prompt = img.get("prompt_used", "Animate this scene")
-            script.append(f"Generate video for image {img.get('id', 'unknown')} using prompt: '{prompt}'")
+        for img in video_request.image_assets:
+            prompt = img.prompt_used if hasattr(img, 'prompt_used') else img.get("prompt_used", "Animate this scene")
+            img_id = img.id if hasattr(img, 'id') else img.get('id', 'unknown')
+            script.append(f"Generate video for image {img_id} using prompt: '{prompt}'")
         
-        if request.generate_voiceover:
+        if video_request.generate_voiceover:
             script.append("Generate voiceover for the video.")
 
         # Store the full request context in Redis
         plan_data = {
-            "request": request.model_dump(),
-            "script": script
+            "request": video_request.model_dump(),
+            "script": script,
+            "user_id": str(current_user.id) if hasattr(current_user, 'id') else None
         }
         
         # Save to Redis with 1 hour expiration
@@ -58,20 +67,33 @@ async def generate_video_plan(request: VideoGenRequest, redis_conn: redis.Redis 
         return VideoPlanResponse(plan_id=plan_id, script=script)
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise InternalServerException(detail=f"Failed to generate video plan: {str(e)}")
 
 @router.post("/execute", response_model=List[VideoAsset], summary="Execute a video plan", description="Executes a previously created video generation plan. This is where the actual (time-consuming) generation happens.")
-async def execute_video_plan(request: VideoExecuteRequest, redis_conn: redis.Redis = Depends(get_redis)):
+@limiter.limit(get_role_limit("2/minute", "5/minute", "30/minute"))
+async def execute_video_plan(
+    request: Request,
+    execute_request: VideoExecuteRequest, 
+    redis_conn: redis.Redis = Depends(get_redis),
+    video_repo: VideoAssetRepository = Depends(get_video_asset_repository),
+    current_user: dict = Depends(get_current_user)
+):
     """
     Step 2: Executes a previously confirmed video generation plan.
+    Saves the generated video assets to the database.
     """
     try:
         # Retrieve plan from Redis
-        plan_json = await redis_conn.get(f"video_plan:{request.plan_id}")
+        plan_json = await redis_conn.get(f"video_plan:{execute_request.plan_id}")
         if not plan_json:
-            raise HTTPException(status_code=404, detail="Plan not found or expired")
+            raise NotFoundException(detail="Plan not found or expired")
         
         plan_data = json.loads(plan_json)
+        
+        # Verify ownership
+        if plan_data.get("user_id") and plan_data.get("user_id") != str(current_user.id):
+             raise ForbiddenException(detail="Not authorized to execute this plan")
+
         original_request = plan_data.get("request")
         
         # Reconstruct inputs for the agent
@@ -84,14 +106,17 @@ async def execute_video_plan(request: VideoExecuteRequest, redis_conn: redis.Red
         
         result = await video_agent.ainvoke(inputs)
         
-        assets = result.get("video_assets", [])
+        assets_data = result.get("video_assets", [])
         
-        # Optionally cleanup Redis (or keep it for history/idempotency)
-        # await redis_conn.delete(f"video_plan:{request.plan_id}")
+        # Save to DB and return models
+        saved_assets = []
+        for asset_data in assets_data:
+            saved_asset = await video_repo.create(asset_data)
+            saved_assets.append(saved_asset)
         
-        return assets
+        return saved_assets
         
-    except HTTPException:
+    except (NotFoundException, ForbiddenException):
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise InternalServerException(detail=f"Failed to execute video plan: {str(e)}")

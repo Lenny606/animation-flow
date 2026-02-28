@@ -5,8 +5,9 @@ from langchain_core.output_parsers import JsonOutputParser
 from langgraph.graph import StateGraph, END
 from pydantic import BaseModel, Field
 
-from app.core.llm_factory import LLMFactory
-from app.interfaces.image_provider import ImageProviderFactory
+from app.core.llm_factory import LLMFactory, get_llm_factory
+from app.interfaces.image_provider import ImageProviderFactory, get_image_provider_factory
+from app.core.config import get_settings
 from app.models.scenario import Scenario
 from app.models.asset import ImageAsset
 
@@ -30,7 +31,10 @@ async def visual_planner_node(state: ImageAgentState):
     """
     scenario_data = state["scenario"]
     provider = state.get("provider", "openai") # LLM provider for planning
-    llm = LLMFactory.create_llm(provider=provider, temperature=0.7)
+    
+    settings = get_settings()
+    llm_factory = get_llm_factory(settings)
+    llm = llm_factory.create_llm(provider=provider, temperature=0.7)
     
     # Construct context from scenario
     scenes_text = ""
@@ -79,7 +83,9 @@ async def image_generation_node(state: ImageAgentState):
     scenario_id = state["scenario"].get("_id", "temp_id")
     
     # We use the factory (defaulting to openai for images for now)
-    image_provider = ImageProviderFactory.get_provider("openai")
+    settings = get_settings()
+    image_provider_factory = get_image_provider_factory(settings)
+    image_provider = image_provider_factory.get_provider("openai")
     
     assets = []
     

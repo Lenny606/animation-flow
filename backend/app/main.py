@@ -1,9 +1,16 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from app.core.config import get_settings
+import os
 
-from app.core.error_handling import http_error_handler, global_exception_handler
-from fastapi.exceptions import HTTPException
+from app.core.error_handling import (
+    http_error_handler, 
+    global_exception_handler, 
+    api_exception_handler,
+    validation_exception_handler,
+    BaseAPIException
+)
+from fastapi.exceptions import HTTPException, RequestValidationError
 from app.db.mongodb import db, MongoDB
 from app.db.redis import redis_client
 from app.routers import auth, agent, scenarios, assets, video, jenko, songs
@@ -15,7 +22,14 @@ from contextlib import asynccontextmanager
 
 settings = get_settings()
 
-from app.core.agent.prompts import PromptService
+# Initialize LangSmith environment variables
+os.environ["LANGCHAIN_TRACING_V2"] = settings.LANGCHAIN_TRACING_V2
+os.environ["LANGCHAIN_ENDPOINT"] = settings.LANGCHAIN_ENDPOINT
+os.environ["LANGCHAIN_API_KEY"] = settings.LANGCHAIN_API_KEY
+os.environ["LANGCHAIN_PROJECT"] = settings.LANGCHAIN_PROJECT
+
+from app.core.agent.prompts import PromptService, get_prompt_service
+from app.db.mongodb import get_database
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -32,7 +46,9 @@ async def lifespan(app: FastAPI):
 
     # Sanity check for prompts
     try:
-        story_prompt = await PromptService.get_story_outline_template()
+        database = await get_database()
+        prompt_service = await get_prompt_service(database)
+        story_prompt = await prompt_service.get_story_outline_template()
         if story_prompt:
             logger.info("Prompts initialized and loaded successfully.")
         else:
@@ -47,11 +63,6 @@ async def lifespan(app: FastAPI):
 
 from fastapi.middleware.cors import CORSMiddleware
 
-origins = [
-    "https://animation-flow-lac.vercel.app",
-    "https://animation-flow-1pys.vercel.app",
-    "http://localhost:5173",
-]
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -78,51 +89,27 @@ AI Orchestration API powers the Animation Flow application, providing endpoints 
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-@app.middleware("http")
-async def cors_handler(request: Request, call_next):
-    origin = request.headers.get("origin")
-    allow_origin = origin if origin in origins else origins[0]
-    
-    # Handle preflight OPTIONS requests manually as a fallback
-    if request.method == "OPTIONS":
-        return JSONResponse(
-            content="OK",
-            headers={
-                "Access-Control-Allow-Origin": allow_origin,
-                "Access-Control-Allow-Methods": "*",
-                "Access-Control-Allow-Headers": "*",
-                "Access-Control-Allow-Credentials": "true",
-            },
-        )
-    
-    response = await call_next(request)
-    
-    # Add headers to all responses if not present
-    if "Access-Control-Allow-Origin" not in response.headers:
-        response.headers["Access-Control-Allow-Origin"] = allow_origin
-    response.headers["Access-Control-Allow-Credentials"] = "true"
-    
-    return response
-
 # Standard CORSMiddleware as the primary handler
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=settings.cors_origins_list,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 app.add_exception_handler(HTTPException, http_error_handler)
+app.add_exception_handler(BaseAPIException, api_exception_handler)
+app.add_exception_handler(RequestValidationError, validation_exception_handler)
 app.add_exception_handler(Exception, global_exception_handler)
 
-app.include_router(auth.router, prefix="/auth", tags=["Authentication"])
-app.include_router(agent.router, prefix="/agent", tags=["AI Agent"])
-app.include_router(scenarios.router, tags=["Scenarios"])
-app.include_router(assets.router, tags=["Assets"])
-app.include_router(video.router, tags=["Video"])
-app.include_router(jenko.router, tags=["Jenko"])
-app.include_router(songs.router, tags=["Songs"])
+app.include_router(auth.router, prefix=f"{settings.API_V1_STR}/auth", tags=["Authentication"])
+app.include_router(agent.router, prefix=f"{settings.API_V1_STR}/agent", tags=["AI Agent"])
+app.include_router(scenarios.router, prefix=f"{settings.API_V1_STR}/scenarios", tags=["Scenarios"])
+app.include_router(assets.router, prefix=f"{settings.API_V1_STR}/assets", tags=["Assets"])
+app.include_router(video.router, prefix=f"{settings.API_V1_STR}/video", tags=["Video"])
+app.include_router(jenko.router, prefix=f"{settings.API_V1_STR}/jenko", tags=["Jenko"])
+app.include_router(songs.router, prefix=f"{settings.API_V1_STR}/songs", tags=["Songs"])
 
 @app.get("/")
 async def root():

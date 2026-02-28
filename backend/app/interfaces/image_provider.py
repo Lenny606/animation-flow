@@ -59,13 +59,21 @@ class OpenAIImageProvider(BaseImageProvider):
                     local_path=local_path
                 )
 
+from app.core.config import get_settings, Settings
+from fastapi import Depends
+
 class ImageProviderFactory:
-    @staticmethod
-    def get_provider(provider_name: str = "openai") -> BaseImageProvider:
+    def __init__(self, settings: Settings = Depends(get_settings)):
+        self.settings = settings
+
+    def get_provider(self, provider_name: str = "openai") -> BaseImageProvider:
         if provider_name == "openai":
-            api_key = os.getenv("OPENAI_API_KEY")
+            api_key = self.settings.OPENAI_API_KEY or os.getenv("OPENAI_API_KEY")
             if not api_key:
                 raise ValueError("OPENAI_API_KEY not set")
             return OpenAIImageProvider(api_key)
         
         raise ValueError(f"Unknown provider: {provider_name}")
+
+def get_image_provider_factory(settings: Settings = Depends(get_settings)) -> ImageProviderFactory:
+    return ImageProviderFactory(settings)

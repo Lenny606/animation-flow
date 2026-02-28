@@ -2,17 +2,25 @@ from typing import TypedDict, Annotated, Sequence
 import operator
 from langchain_core.messages import BaseMessage, HumanMessage, AIMessage
 from langgraph.graph import StateGraph, END
+from langgraph.checkpoint.memory import MemorySaver
+
+from app.core.llm_factory import LLMFactory
+from app.core.config import get_settings
 
 class AgentState(TypedDict):
     messages: Annotated[Sequence[BaseMessage], operator.add]
 
-def call_model(state: AgentState):
-    # In a real app, you would call an LLM here.
-    # For skeleton purposes, we simulate a response.
+async def call_model(state: AgentState):
+    """
+    Calls the LLM with the current state's messages and returns the AI's response.
+    """
+    settings = get_settings()
+    llm_factory = LLMFactory(settings=settings)
+    llm = llm_factory.create_llm()
+    
     messages = state['messages']
-    last_message = messages[-1]
-    response = f"Echo: {last_message.content}"
-    return {"messages": [AIMessage(content=response)]}
+    response = await llm.ainvoke(messages)
+    return {"messages": [response]}
 
 def create_graph():
     workflow = StateGraph(AgentState)
@@ -23,6 +31,7 @@ def create_graph():
     
     workflow.add_edge("agent", END)
     
-    return workflow.compile()
+    checkpointer = MemorySaver()
+    return workflow.compile(checkpointer=checkpointer)
 
 graph = create_graph()

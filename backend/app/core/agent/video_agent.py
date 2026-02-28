@@ -2,7 +2,8 @@ import asyncio
 from typing import TypedDict, List, Optional
 from langgraph.graph import StateGraph, END
 
-from app.interfaces.video_provider import VideoProviderFactory
+from app.interfaces.video_provider import VideoProviderFactory, get_video_provider_factory
+from app.core.config import get_settings
 from app.models.asset import ImageAsset, VideoAsset
 from app.models.scenario import Scenario
 
@@ -23,7 +24,9 @@ async def video_generation_node(state: VideoAgentState):
     provider_name = state.get("provider", "mock")
     scenario_id = state["scenario_id"]
     
-    video_provider = VideoProviderFactory.get_provider(provider_name)
+    settings = get_settings()
+    video_provider_factory = get_video_provider_factory(settings)
+    video_provider = video_provider_factory.get_provider(provider_name)
     generated_videos = []
     
     for img_data in images:
