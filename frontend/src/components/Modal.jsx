@@ -1,14 +1,28 @@
-import React from 'react';
+import React, { useId } from 'react';
 
 const Modal = ({ isOpen, onClose, title, children }) => {
+    const titleId = useId();
+
     if (!isOpen) return null;
 
     return (
         <div style={styles.overlay} onClick={onClose}>
-            <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <div
+                style={styles.modal}
+                onClick={(e) => e.stopPropagation()}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby={titleId}
+            >
                 <div style={styles.header}>
-                    <h2 style={styles.title}>{title}</h2>
-                    <button style={styles.closeButton} onClick={onClose}>&times;</button>
+                    <h2 id={titleId} style={styles.title}>{title}</h2>
+                    <button
+                        style={styles.closeButton}
+                        onClick={onClose}
+                        aria-label="Close modal"
+                    >
+                        &times;
+                    </button>
                 </div>
                 <div style={styles.content}>
                     {children}
