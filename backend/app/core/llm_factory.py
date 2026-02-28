@@ -1,25 +1,54 @@
 import os
-from typing import Optional, Literal
+from typing import Optional, Literal, List
 from langchain_openai import ChatOpenAI
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.language_models.chat_models import BaseChatModel
+from app.core.config import get_settings
 
 class LLMFactory:
     @staticmethod
     def create_llm(
         provider: Literal["openai", "gemini", "local"] = "openai",
         model_name: Optional[str] = None,
-        temperature: float = 0.7
+        temperature: float = 0.7,
+        with_retry: bool = True,
+        with_fallback: bool = True
     ) -> BaseChatModel:
         """
-        Factory method to create a LangChain Chat Model based on the provider.
+        Factory method to create a LangChain Chat Model with optional retry and fallback logic.
         """
+        settings = get_settings()
+        
+        # 1. Create the primary LLM
+        primary_llm = LLMFactory._create_base_llm(provider, model_name, temperature)
+        
+        # 2. Add Retry Logic
+        if with_retry:
+            primary_llm = primary_llm.with_retry(
+                stop_after_attempt=settings.LLM_RETRY_MAX_ATTEMPTS
+            )
+            
+        # 3. Add Fallback Logic
+        if with_fallback and settings.LLM_FALLBACK_ENABLED:
+            fallbacks = LLMFactory._get_fallbacks(provider, temperature)
+            if fallbacks:
+                primary_llm = primary_llm.with_fallbacks(fallbacks)
+                
+        return primary_llm
+
+    @staticmethod
+    def _create_base_llm(
+        provider: str,
+        model_name: Optional[str] = None,
+        temperature: float = 0.7
+    ) -> BaseChatModel:
+        settings = get_settings()
+        
         if provider == "openai":
-            api_key = os.getenv("OPENAI_API_KEY")
+            api_key = settings.OPENAI_API_KEY or os.getenv("OPENAI_API_KEY")
             if not api_key:
-                raise ValueError("OPENAI_API_KEY environment variable is not set")
-            # Default to gpt-3.5-turbo if not specified, or allow env override
-            final_model = model_name or os.getenv("OPENAI_MODEL_NAME", "gpt-3.5-turbo")
+                raise ValueError("OPENAI_API_KEY is not set")
+            final_model = model_name or settings.OPENAI_MODEL_NAME
             return ChatOpenAI(
                 model=final_model,
                 temperature=temperature,
@@ -27,10 +56,10 @@ class LLMFactory:
             )
             
         elif provider == "gemini":
-            api_key = os.getenv("GOOGLE_API_KEY")
+            api_key = settings.GOOGLE_API_KEY or os.getenv("GOOGLE_API_KEY")
             if not api_key:
-                raise ValueError("GOOGLE_API_KEY environment variable is not set")
-            final_model = model_name or os.getenv("GEMINI_MODEL_NAME", "gemini-pro")
+                raise ValueError("GOOGLE_API_KEY is not set")
+            final_model = model_name or settings.GEMINI_MODEL_NAME
             return ChatGoogleGenerativeAI(
                 model=final_model,
                 temperature=temperature,
@@ -38,10 +67,9 @@ class LLMFactory:
             )
             
         elif provider == "local":
-            # Assuming local models utilize an OpenAI-compatible API (e.g., Ollama, vLLM)
-            base_url = os.getenv("LOCAL_LLM_BASE_URL", "http://localhost:11434/v1")
-            api_key = os.getenv("LOCAL_LLM_API_KEY", "lm-studio") # dummy key often needed
-            final_model = model_name or os.getenv("LOCAL_LLM_MODEL_NAME", "llama2")
+            base_url = settings.LOCAL_LLM_BASE_URL
+            api_key = settings.LOCAL_LLM_API_KEY
+            final_model = model_name or settings.LOCAL_LLM_MODEL_NAME
             return ChatOpenAI(
                 base_url=base_url,
                 api_key=api_key,
@@ -50,3 +78,30 @@ class LLMFactory:
             )
 
         raise ValueError(f"Unsupported LLM provider: {provider}")
+
+    @staticmethod
+    def _get_fallbacks(current_provider: str, temperature: float) -> List[BaseChatModel]:
+        """
+        Returns a list of fallback models based on the current provider.
+        """
+        settings = get_settings()
+        fallbacks = []
+        
+        # Define priority order for fallbacks
+        providers_priority = ["openai", "gemini"]
+        
+        for provider in providers_priority:
+            if provider == current_provider:
+                continue
+                
+            try:
+                # Check if API key exists for fallback provider
+                if provider == "openai" and (settings.OPENAI_API_KEY or os.getenv("OPENAI_API_KEY")):
+                    fallbacks.append(LLMFactory._create_base_llm("openai", temperature=temperature))
+                elif provider == "gemini" and (settings.GOOGLE_API_KEY or os.getenv("GOOGLE_API_KEY")):
+                    fallbacks.append(LLMFactory._create_base_llm("gemini", temperature=temperature))
+            except Exception:
+                # If we can't create a fallback, just skip it
+                continue
+                
+        return fallbacks

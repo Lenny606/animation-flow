@@ -1,24 +1,23 @@
 from fastapi import APIRouter, HTTPException, BackgroundTasks, Depends
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from app.models.scenario import Scenario
 from app.core.agent.graph import scenario_agent
 
 router = APIRouter(
     prefix="/scenarios",
-    tags=["scenarios"],
     responses={404: {"description": "Not found"}},
 )
 
 class GenerateScenarioRequest(BaseModel):
-    topic: str
-    style: str
-    target_audience: str = "General Audience"
-    duration: int = 60
-    llm_provider: str = "openai"
+    topic: str = Field(..., description="The main topic of the video", examples=["Artificial Intelligence"])
+    style: str = Field(..., description="The visual style of the video", examples=["Cinematic sci-fi"])
+    target_audience: str = Field("General Audience", description="The intended audience", examples=["Tech enthusiasts"])
+    duration: int = Field(60, description="The desired duration of the video in seconds", examples=[30])
+    llm_provider: str = Field("openai", description="The LLM provider to use for generation", examples=["openai", "anthropic"])
 
-@router.post("/generate", response_model=Scenario)
+@router.post("/generate", response_model=Scenario, summary="Generate a scenario", description="Triggers the AI agent to generate a detailed video scenario based on a topic and style.")
 async def generate_scenario(request: GenerateScenarioRequest):
     """
     Trigger the AI agent to generate a video scenario.
@@ -50,6 +49,6 @@ async def generate_scenario(request: GenerateScenarioRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/{id}", response_model=Scenario)
+@router.get("/{id}", response_model=Scenario, summary="Get scenario by ID", description="Retrieves a specific scenario by its unique identifier.")
 async def get_scenario(id: str):
     raise HTTPException(status_code=501, detail="Not implemented yet via DB")

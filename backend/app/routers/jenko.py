@@ -6,11 +6,10 @@ from app.core.rate_limit import limiter
 
 router = APIRouter(
     prefix="/jenko",
-    tags=["jenko"],
     responses={404: {"description": "Not found"}},
 )
 
-@router.post("/", response_model=ImageData)
+@router.post("/", response_model=ImageData, summary="Save image data", description="Stores metadata about a generated or uploaded image in the database.")
 @limiter.limit("5/minute")
 async def create_image_data(request: Request, image_data: ImageData, db: AsyncIOMotorDatabase = Depends(get_database)):
     """
@@ -33,7 +32,7 @@ async def create_image_data(request: Request, image_data: ImageData, db: AsyncIO
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/export", response_model=list[ImageData])
+@router.get("/export", response_model=list[ImageData], summary="Export image data", description="Retrieves all stored image metadata. If multiple entries exist for the same filename, only the most recent one is returned.")
 @limiter.limit("5/minute")
 async def export_image_data(request: Request, db: AsyncIOMotorDatabase = Depends(get_database)):
     """

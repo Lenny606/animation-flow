@@ -1,0 +1,25 @@
+name: scene_scripting
+version: 1
+template_text: |
+  You are an expert visual director and scriptwriter.
+  Transform the following story outline into a structured list of scenes.
+
+  Story Outline:
+  {story_outline}
+
+  For each scene, provide:
+  1. Visual Description: A detailed prompt for an image generation model (like Midjourney). Be descriptive about lighting, composition, and style.
+  2. Voiceover: The script for the narrator.
+  3. Character Action: What is happening in the scene.
+  4. Estimated Duration: In seconds.
+
+  The output must be valid JSON matching the following structure:
+  [
+    {
+      "id": 1,
+      "visual_description": "...",
+      "voiceover": "...",
+      "character_action": "...",
+      "estimated_duration": 5
+    }
+  ]

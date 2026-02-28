@@ -6,10 +6,9 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 
 router = APIRouter(
     prefix="/songs",
-    tags=["songs"],
 )
 
-@router.get("/", response_model=List[Song])
+@router.get("/", response_model=List[Song], summary="Get all songs", description="Retrieves a list of all songs available in the database.")
 async def get_songs(db: AsyncIOMotorDatabase = Depends(get_database)):
     """
     Get all saved songs.

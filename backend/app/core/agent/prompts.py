@@ -1,62 +1,63 @@
-from typing import Optional
+import os
+import yaml
+from typing import Optional, Dict
 from app.models.prompt_template import CustomPrompt
-# Assuming a DB dependency or direct DB access will be injected/used.
-# For simplicity in this step, we'll setup the basics and include a default fallback.
+from app.db.mongodb import get_database
+from app.core.logging import logger
 
-# Default Templates
-DEFAULT_STORY_OUTLINE_TEMPLATE = """
-You are a creative screenwriter.
-Create a detailed story outline based on the following topic: "{topic}".
-Style: {style}
-Target Audience: {target_audience}
-
-The outline should be structured as a sequence of events suitable for a {duration} second video.
-Return just the story text.
-"""
-
-DEFAULT_SCENE_SCRIPTING_TEMPLATE = """
-You are an expert visual director and scriptwriter.
-Transform the following story outline into a structured list of scenes.
-
-Story Outline:
-{story_outline}
-
-For each scene, provide:
-1. Visual Description: A detailed prompt for an image generation model (like Midjourney). Be descriptive about lighting, composition, and style.
-2. Voiceover: The script for the narrator.
-3. Character Action: What is happening in the scene.
-4. Estimated Duration: In seconds.
-
-The output must be valid JSON matching the following structure:
-[
-  {
-    "id": 1,
-    "visual_description": "...",
-    "voiceover": "...",
-    "character_action": "...",
-    "estimated_duration": 5
-  }
-]
-"""
+# Base directory for prompt files
+PROMPTS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "prompts")
 
 class PromptService:
+    _cache: Dict[str, str] = {}
+
     @staticmethod
-    async def get_template(name: str, default: str) -> str:
+    async def get_template(name: str, force_reload: bool = False) -> str:
         """
         Retrieves a prompt template. 
-        In a real scenario, this would check the DB (Redis/MongoDB) for a custom override.
-        For now, returns the default.
+        Checks:
+        1. Memory cache (if not force_reload).
+        2. DB (MongoDB) for a custom override.
+        3. File system (prompts/ directory) for the base version.
         """
-        # TODO: Implement DB lookup for CustomPrompt with 'name'
-        # e.g. prompt = await db.prompts.find_one({"name": name})
-        # if prompt: return prompt.template_text
-        
-        return default
+        # 1. Check Cache
+        if not force_reload and name in PromptService._cache:
+            return PromptService._cache[name]
+
+        # 2. Check DB Override
+        try:
+            database = await get_database()
+            if database is not None:
+                db_prompt = await database.prompts.find_one({"name": name})
+                if db_prompt:
+                    template = db_prompt["template_text"]
+                    PromptService._cache[name] = template
+                    return template
+        except Exception as e:
+            # We don't want to log timeout errors every time if DB is down
+            # logger.error(f"Error fetching prompt '{name}' from DB: {e}")
+            pass
+
+        # 3. Load from File
+        file_path = os.path.join(PROMPTS_DIR, f"{name}.yaml")
+        if os.path.exists(file_path):
+            try:
+                with open(file_path, "r") as f:
+                    data = yaml.safe_load(f)
+                    template = data.get("template_text", "")
+                    if template:
+                        PromptService._cache[name] = template
+                        return template
+            except Exception as e:
+                logger.error(f"Error loading prompt file '{file_path}': {e}")
+
+        logger.warning(f"Prompt template '{name}' not found in DB or file system.")
+        return ""
 
     @staticmethod
     async def get_story_outline_template() -> str:
-        return await PromptService.get_template("story_outline", DEFAULT_STORY_OUTLINE_TEMPLATE)
+        return await PromptService.get_template("story_outline")
 
     @staticmethod
     async def get_scene_scripting_template() -> str:
-        return await PromptService.get_template("scene_scripting", DEFAULT_SCENE_SCRIPTING_TEMPLATE)
+        return await PromptService.get_template("scene_scripting")

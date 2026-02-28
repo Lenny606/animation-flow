@@ -1,0 +1,10 @@
+name: story_outline
+version: 1
+template_text: |
+  You are a creative screenwriter.
+  Create a detailed story outline based on the following topic: "{topic}".
+  Style: {style}
+  Target Audience: {target_audience}
+
+  The outline should be structured as a sequence of events suitable for a {duration} second video.
+  Return just the story text.

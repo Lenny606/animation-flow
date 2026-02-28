@@ -5,8 +5,6 @@ services:
     build: ./backend
     ports:
       - "8000:8000"
-    volumes:
-      - ./backend:/app
     environment:
       - MONGODB_URL=mongodb://mongodb:27017
       - REDIS_URL=redis://redis:6379/0
@@ -21,10 +19,7 @@ services:
     build:
       context: ./frontend
     ports:
-      - "5173:5173"
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
+      - "5173:80"
     environment:
       - VITE_API_URL=http://localhost:8000
     depends_on:

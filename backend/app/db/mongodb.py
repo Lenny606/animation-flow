@@ -23,4 +23,9 @@ class MongoDB:
 db = MongoDB()
 
 async def get_database():
-    return db.client[settings.DATABASE_NAME]
+    try:
+        if db.client is None:
+            db.connect()
+        return db.client[settings.DATABASE_NAME]
+    except Exception:
+        return None

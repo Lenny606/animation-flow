@@ -15,6 +15,8 @@ from contextlib import asynccontextmanager
 
 settings = get_settings()
 
+from app.core.agent.prompts import PromptService
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
@@ -27,6 +29,16 @@ async def lifespan(app: FastAPI):
         await redis_client.connect()
     except Exception as e:
         logger.error(f"Failed to connect to Redis during startup: {e}")
+
+    # Sanity check for prompts
+    try:
+        story_prompt = await PromptService.get_story_outline_template()
+        if story_prompt:
+            logger.info("Prompts initialized and loaded successfully.")
+        else:
+            logger.warning("No prompt templates found during startup.")
+    except Exception as e:
+        logger.error(f"Error checking prompts on startup: {e}")
     
     yield
     # Shutdown
@@ -44,7 +56,24 @@ origins = [
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.VERSION,
-    lifespan=lifespan
+    description="""
+AI Orchestration API powers the Animation Flow application, providing endpoints for:
+* **Authentication**: User registration and login.
+* **AI Agent**: Natural language interaction with the system.
+* **Scenarios**: Generating and managing video scripts.
+* **Assets**: Generating image assets for scenes.
+* **Video**: Planning and executing video generation.
+* **Jenko**: Specialized image metadata management.
+* **Songs**: Managing a library of songs.
+""",
+    lifespan=lifespan,
+    contact={
+        "name": "API Support",
+        "url": "https://github.com/tomas-p/animation-flow",
+    },
+    license_info={
+        "name": "MIT",
+    },
 )
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
@@ -87,13 +116,13 @@ app.add_middleware(
 app.add_exception_handler(HTTPException, http_error_handler)
 app.add_exception_handler(Exception, global_exception_handler)
 
-app.include_router(auth.router, prefix="/auth", tags=["auth"])
-app.include_router(agent.router, prefix="/agent", tags=["agent"])
-app.include_router(scenarios.router)
-app.include_router(assets.router)
-app.include_router(video.router)
-app.include_router(jenko.router)
-app.include_router(songs.router)
+app.include_router(auth.router, prefix="/auth", tags=["Authentication"])
+app.include_router(agent.router, prefix="/agent", tags=["AI Agent"])
+app.include_router(scenarios.router, tags=["Scenarios"])
+app.include_router(assets.router, tags=["Assets"])
+app.include_router(video.router, tags=["Video"])
+app.include_router(jenko.router, tags=["Jenko"])
+app.include_router(songs.router, tags=["Songs"])
 
 @app.get("/")
 async def root():

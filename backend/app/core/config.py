@@ -19,6 +19,18 @@ class Settings(BaseSettings):
     FRONTEND_URL: str = "http://localhost:5173"
     CORS_ORIGINS: str = "http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000,http://127.0.0.1:3000,https://animation-flow-lac.vercel.app,https://animation-flow-1pys.vercel.app"
 
+    # LLM Settings
+    OPENAI_API_KEY: str = ""
+    GOOGLE_API_KEY: str = ""
+    OPENAI_MODEL_NAME: str = "gpt-3.5-turbo"
+    GEMINI_MODEL_NAME: str = "gemini-pro"
+    LOCAL_LLM_BASE_URL: str = "http://localhost:11434/v1"
+    LOCAL_LLM_API_KEY: str = "lm-studio"
+    LOCAL_LLM_MODEL_NAME: str = "llama2"
+
+    LLM_RETRY_MAX_ATTEMPTS: int = 3
+    LLM_FALLBACK_ENABLED: bool = True
+
     @property
     def cors_origins_list(self) -> list[str]:
         if not self.CORS_ORIGINS:

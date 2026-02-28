@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import List, Optional
 import uuid
 import json
@@ -11,24 +11,23 @@ from app.db.redis import get_redis
 
 router = APIRouter(
     prefix="/video",
-    tags=["video"],
     responses={404: {"description": "Not found"}},
 )
 
 class VideoGenRequest(BaseModel):
-    scenario_id: str
-    image_assets: List[dict] # Pass full asset dicts for MVP
-    provider: str = "mock"
-    generate_voiceover: bool = False
+    scenario_id: str = Field(..., description="The ID of the scenario the video is based on", examples=["60d5ecb8b392d011f8871123"])
+    image_assets: List[ImageAsset] = Field(..., description="The list of image assets to animate")
+    provider: str = Field("mock", description="The video generation provider to use", examples=["runway", "luma", "mock"])
+    generate_voiceover: bool = Field(False, description="Whether to also generate a voiceover for the video", examples=[True])
 
 class VideoExecuteRequest(BaseModel):
-    plan_id: str
+    plan_id: str = Field(..., description="The unique ID of the previously generated video plan", examples=["80d1964f-4795-4672-911e-45041a733739"])
 
 class VideoPlanResponse(BaseModel):
-    plan_id: str
-    script: List[str]
+    plan_id: str = Field(..., description="The unique ID of the generated video plan", examples=["80d1964f-4795-4672-911e-45041a733739"])
+    script: List[str] = Field(..., description="A step-by-step description of the planned generation process", examples=[["Generate video for image 1", "Generate voiceover"]])
 
-@router.post("/plan", response_model=VideoPlanResponse)
+@router.post("/plan", response_model=VideoPlanResponse, summary="Create a video generation plan", description="Initializes the video generation process by creating a plan. Returns a plan ID that must be used to execute the generation.")
 async def generate_video_plan(request: VideoGenRequest, redis_conn: redis.Redis = Depends(get_redis)):
     """
     Step 1: Generates a plan (script) for video generation and saves it to Redis.
@@ -61,7 +60,7 @@ async def generate_video_plan(request: VideoGenRequest, redis_conn: redis.Redis 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/execute", response_model=List[dict])
+@router.post("/execute", response_model=List[VideoAsset], summary="Execute a video plan", description="Executes a previously created video generation plan. This is where the actual (time-consuming) generation happens.")
 async def execute_video_plan(request: VideoExecuteRequest, redis_conn: redis.Redis = Depends(get_redis)):
     """
     Step 2: Executes a previously confirmed video generation plan.

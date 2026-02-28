@@ -9,7 +9,7 @@ from typing import Annotated
 router = APIRouter()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
 
-@router.post("/register", response_model=User)
+@router.post("/register", response_model=User, summary="Register a new user", description="Creates a new user account with the provided email and password.")
 async def register(user: UserCreate, db: AsyncIOMotorDatabase = Depends(get_database)):
     existing_user = await db.users.find_one({"email": user.email})
     if existing_user:
@@ -29,11 +29,11 @@ async def register(user: UserCreate, db: AsyncIOMotorDatabase = Depends(get_data
     created_user["_id"] = str(created_user["_id"])
     return created_user
 
-@router.post("/signup", response_model=User)
+@router.post("/signup", response_model=User, summary="User signup", description="Alias for /register. Creates a new user account.")
 async def signup(user: UserCreate, db: AsyncIOMotorDatabase = Depends(get_database)):
     return await register(user, db)
 
-@router.post("/login")
+@router.post("/login", summary="Login", description="Authenticates a user and returns an access token.")
 async def login(user_login: UserLogin, db: AsyncIOMotorDatabase = Depends(get_database)):
     user = await db.users.find_one({"email": user_login.email})
     if not user or not verify_password(user_login.password, user["hashed_password"]):
@@ -46,7 +46,7 @@ async def login(user_login: UserLogin, db: AsyncIOMotorDatabase = Depends(get_da
     access_token = create_access_token(data={"sub": user["email"]})
     return {"access_token": access_token, "token_type": "bearer"}
 
-@router.post("/token")
+@router.post("/token", summary="Token exchange (OAuth2)", description="Authenticates a user and returns an access token. Used by OAuth2 compatible clients.")
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     db: AsyncIOMotorDatabase = Depends(get_database)
