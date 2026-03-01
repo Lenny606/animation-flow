@@ -56,7 +56,7 @@ const Login = () => {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
-                            style={styles.input}
+                            style={{ ...styles.input, ...(isLoading ? styles.inputDisabled : {}) }}
                             placeholder="Enter your email"
                             disabled={isLoading}
                         />
@@ -69,12 +69,12 @@ const Login = () => {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
-                            style={styles.input}
+                            style={{ ...styles.input, ...(isLoading ? styles.inputDisabled : {}) }}
                             placeholder="Enter your password"
                             disabled={isLoading}
                         />
                     </div>
-                    <button type="submit" style={styles.button} disabled={isLoading}>
+                    <button type="submit" style={{ ...styles.button, ...(isLoading ? styles.buttonDisabled : {}) }} disabled={isLoading}>
                         {isLoading ? 'Signing In...' : 'Sign In'}
                     </button>
                 </form>
@@ -124,6 +124,11 @@ const styles = {
         border: '1px solid #ccc',
         fontSize: '1rem',
     },
+    inputDisabled: {
+        backgroundColor: '#e9ecef',
+        cursor: 'not-allowed',
+        opacity: 0.7,
+    },
     button: {
         padding: '0.75rem',
         borderRadius: '4px',
@@ -135,6 +140,11 @@ const styles = {
         cursor: 'pointer',
         marginTop: '1rem',
         transition: 'background-color 0.2s',
+    },
+    buttonDisabled: {
+        backgroundColor: '#6c757d',
+        cursor: 'not-allowed',
+        opacity: 0.7,
     },
     error: {
         color: '#dc3545',

@@ -252,7 +252,7 @@ const GenerateImage = () => {
                     />
                 </div>
             </div>
-            <button type="submit" style={styles.primaryButton} disabled={isLoading}>
+            <button type="submit" style={{ ...styles.primaryButton, ...(isLoading ? styles.disabledButton : {}) }} disabled={isLoading}>
                 {isLoading ? 'Planning Storyboard...' : 'Generate Storyboard'}
             </button>
         </form>
@@ -270,7 +270,7 @@ const GenerateImage = () => {
             </div>
             <div style={styles.buttonGroup}>
                 <button onClick={() => setStep(1)} style={styles.secondaryButton}>Edit Prompt</button>
-                <button onClick={handleGenerateImages} style={styles.primaryButton} disabled={isLoading}>
+                <button onClick={handleGenerateImages} style={{ ...styles.primaryButton, ...(isLoading ? styles.disabledButton : {}) }} disabled={isLoading}>
                     {isLoading ? 'Generating Images...' : 'Generate AI Images'}
                 </button>
             </div>
@@ -289,7 +289,7 @@ const GenerateImage = () => {
             </div>
             <div style={styles.buttonGroupCenter}>
                 <button onClick={() => setStep(1)} style={styles.secondaryButton}>Start Over</button>
-                <button onClick={handleGeneratePlan} style={styles.primaryButton} disabled={isLoading}>
+                <button onClick={handleGeneratePlan} style={{ ...styles.primaryButton, ...(isLoading ? styles.disabledButton : {}) }} disabled={isLoading}>
                     {isLoading ? 'Generating Plan...' : 'Generate Video Plan'}
                 </button>
             </div>
@@ -309,7 +309,7 @@ const GenerateImage = () => {
             </div>
             <div style={styles.buttonGroup}>
                 <button onClick={() => setStep(3)} style={styles.secondaryButton}>Back to Images</button>
-                <button onClick={handleExecutePlan} style={styles.primaryButton} disabled={isLoading}>
+                <button onClick={handleExecutePlan} style={{ ...styles.primaryButton, ...(isLoading ? styles.disabledButton : {}) }} disabled={isLoading}>
                     {isLoading ? 'Executing Plan...' : 'Confirm & Execute'}
                 </button>
             </div>
@@ -437,6 +437,11 @@ const styles = {
         cursor: 'pointer',
         transition: 'background-color 0.2s',
         marginTop: '1rem',
+    },
+    disabledButton: {
+        backgroundColor: '#94a3b8',
+        cursor: 'not-allowed',
+        opacity: 0.7,
     },
     secondaryButton: {
         padding: '1rem',
