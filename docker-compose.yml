@@ -3,14 +3,14 @@ version: '3.8'
 services:
   api:
     build: ./backend
-    ports:
-      - "8000:8000"
+    restart: unless-stopped
+    env_file:
+      - ./backend/app/.env
     environment:
       - MONGODB_URL=mongodb://mongodb:27017
       - REDIS_URL=redis://redis:6379/0
-      - SECRET_KEY=changethiskeyinproduction
-      - ALGORITHM=HS256
-      - ACCESS_TOKEN_EXPIRE_MINUTES=30
+    ports:
+      - "8000:8000"
     depends_on:
       - mongodb
       - redis
@@ -18,15 +18,17 @@ services:
   frontend:
     build:
       context: ./frontend
+      args:
+        - VITE_API_URL=http://localhost:8000
+    restart: unless-stopped
     ports:
-      - "5173:80"
-    environment:
-      - VITE_API_URL=http://localhost:8000
+      - "5173:5173"
     depends_on:
       - api
 
   mongodb:
     image: mongo:latest
+    restart: unless-stopped
     ports:
       - "27017:27017"
     volumes:
@@ -34,6 +36,7 @@ services:
 
   redis:
     image: redis:alpine
+    restart: unless-stopped
     ports:
       - "6379:6379"
     volumes:
