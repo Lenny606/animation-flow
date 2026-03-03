@@ -202,9 +202,10 @@ const GenerateImage = () => {
                 {showSongSelect && (
                     <select
                         onChange={handleSongSelect}
-                        style={styles.songSelect}
+                        style={{ ...styles.songSelect, ...(isLoading ? styles.inputDisabled : {}) }}
                         defaultValue=""
                         aria-label="Select a saved song"
+                        disabled={isLoading}
                     >
                         <option value="" disabled>-- Pick a song --</option>
                         {songs.map(song => (
@@ -221,7 +222,8 @@ const GenerateImage = () => {
                     onChange={handleInputChange}
                     placeholder="e.g. The future of robotics"
                     required
-                    style={styles.input}
+                    style={{ ...styles.input, ...(isLoading ? styles.inputDisabled : {}) }}
+                    disabled={isLoading}
                 />
             </div>
             <div style={styles.row}>
@@ -232,7 +234,8 @@ const GenerateImage = () => {
                         name="style"
                         value={formData.style}
                         onChange={handleInputChange}
-                        style={styles.select}
+                        style={{ ...styles.select, ...(isLoading ? styles.inputDisabled : {}) }}
+                        disabled={isLoading}
                     >
                         <option value="cinematic">Cinematic</option>
                         <option value="anime">Anime</option>
@@ -248,7 +251,8 @@ const GenerateImage = () => {
                         name="duration"
                         value={formData.duration}
                         onChange={handleInputChange}
-                        style={styles.input}
+                        style={{ ...styles.input, ...(isLoading ? styles.inputDisabled : {}) }}
+                        disabled={isLoading}
                     />
                 </div>
             </div>
@@ -437,6 +441,11 @@ const styles = {
         cursor: 'pointer',
         transition: 'background-color 0.2s',
         marginTop: '1rem',
+    },
+    inputDisabled: {
+        backgroundColor: '#e9ecef',
+        cursor: 'not-allowed',
+        opacity: 0.7,
     },
     disabledButton: {
         backgroundColor: '#94a3b8',
