@@ -193,7 +193,8 @@ const GenerateImage = () => {
                         <button
                             type="button"
                             onClick={() => setShowSongSelect(!showSongSelect)}
-                            style={styles.linkButton}
+                            style={{ ...styles.linkButton, ...(isLoading ? styles.disabledInput : {}) }}
+                            disabled={isLoading}
                         >
                             {showSongSelect ? 'Cancel' : 'Select from saved songs'}
                         </button>
@@ -202,9 +203,10 @@ const GenerateImage = () => {
                 {showSongSelect && (
                     <select
                         onChange={handleSongSelect}
-                        style={styles.songSelect}
+                        style={{ ...styles.songSelect, ...(isLoading ? styles.disabledInput : {}) }}
                         defaultValue=""
                         aria-label="Select a saved song"
+                        disabled={isLoading}
                     >
                         <option value="" disabled>-- Pick a song --</option>
                         {songs.map(song => (
@@ -221,7 +223,8 @@ const GenerateImage = () => {
                     onChange={handleInputChange}
                     placeholder="e.g. The future of robotics"
                     required
-                    style={styles.input}
+                    style={{ ...styles.input, ...(isLoading ? styles.disabledInput : {}) }}
+                    disabled={isLoading}
                 />
             </div>
             <div style={styles.row}>
@@ -232,7 +235,8 @@ const GenerateImage = () => {
                         name="style"
                         value={formData.style}
                         onChange={handleInputChange}
-                        style={styles.select}
+                        style={{ ...styles.select, ...(isLoading ? styles.disabledInput : {}) }}
+                        disabled={isLoading}
                     >
                         <option value="cinematic">Cinematic</option>
                         <option value="anime">Anime</option>
@@ -248,7 +252,8 @@ const GenerateImage = () => {
                         name="duration"
                         value={formData.duration}
                         onChange={handleInputChange}
-                        style={styles.input}
+                        style={{ ...styles.input, ...(isLoading ? styles.disabledInput : {}) }}
+                        disabled={isLoading}
                     />
                 </div>
             </div>
@@ -418,6 +423,11 @@ const styles = {
         border: '1px solid #e2e8f0',
         fontSize: '1rem',
         transition: 'border-color 0.2s',
+    },
+    disabledInput: {
+        backgroundColor: '#f1f5f9',
+        cursor: 'not-allowed',
+        opacity: 0.7,
     },
     select: {
         padding: '0.75rem 1rem',
