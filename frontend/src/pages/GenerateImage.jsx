@@ -321,6 +321,28 @@ const GenerateImage = () => {
         </div>
     );
 
+    const renderProgress = () => (
+        <div style={styles.progressContainer} aria-label={`Step ${step} of 5`}>
+            {[1, 2, 3, 4, 5].map((i) => (
+                <div key={i} style={styles.progressStep}>
+                    <div style={{
+                        ...styles.progressDot,
+                        ...(i === step ? styles.progressDotActive : {}),
+                        ...(i < step ? styles.progressDotCompleted : {})
+                    }}>
+                        {i < step ? '✓' : i}
+                    </div>
+                    {i < 5 && (
+                        <div style={{
+                            ...styles.progressLine,
+                            ...(i < step ? styles.progressLineCompleted : {})
+                        }} />
+                    )}
+                </div>
+            ))}
+        </div>
+    );
+
     const renderFinalVideo = () => (
         <div style={styles.stepContainer}>
             <h3 style={styles.subTitleSuccess}>Video Generation Complete!</h3>
@@ -352,6 +374,8 @@ const GenerateImage = () => {
                 </p>
 
                 {error && <div style={styles.error}>{error}</div>}
+
+                {renderProgress()}
 
                 {step === 1 && renderForm()}
                 {step === 2 && renderScenario()}
@@ -587,6 +611,49 @@ const styles = {
         fontSize: '0.9rem',
         backgroundColor: '#eff6ff',
         marginBottom: '0.5rem',
+    },
+    progressContainer: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: '2rem',
+        width: '100%',
+    },
+    progressStep: {
+        display: 'flex',
+        alignItems: 'center',
+    },
+    progressDot: {
+        width: '2rem',
+        height: '2rem',
+        borderRadius: '50%',
+        backgroundColor: '#e2e8f0',
+        color: '#64748b',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: '0.875rem',
+        fontWeight: '600',
+        transition: 'all 0.3s ease',
+    },
+    progressDotActive: {
+        backgroundColor: '#3b82f6',
+        color: '#ffffff',
+        boxShadow: '0 0 0 4px #eff6ff',
+    },
+    progressDotCompleted: {
+        backgroundColor: '#10b981',
+        color: '#ffffff',
+    },
+    progressLine: {
+        height: '2px',
+        width: '2rem',
+        backgroundColor: '#e2e8f0',
+        margin: '0 0.5rem',
+        transition: 'background-color 0.3s ease',
+    },
+    progressLineCompleted: {
+        backgroundColor: '#10b981',
     }
 };
 
