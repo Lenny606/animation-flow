@@ -351,6 +351,17 @@ const GenerateImage = () => {
                     {step === 5 && "Here is your generated video content."}
                 </p>
 
+                <div
+                    style={styles.progressContainer}
+                    role="progressbar"
+                    aria-valuenow={step}
+                    aria-valuemin="1"
+                    aria-valuemax="5"
+                    aria-label={`Step ${step} of 5`}
+                >
+                    <div style={{ ...styles.progressBar, width: `${(step / 5) * 100}%` }}></div>
+                </div>
+
                 {error && <div style={styles.error}>{error}</div>}
 
                 {step === 1 && renderForm()}
@@ -587,6 +598,19 @@ const styles = {
         fontSize: '0.9rem',
         backgroundColor: '#eff6ff',
         marginBottom: '0.5rem',
+    },
+    progressContainer: {
+        width: '100%',
+        backgroundColor: '#e2e8f0',
+        borderRadius: '8px',
+        height: '8px',
+        marginBottom: '2rem',
+        overflow: 'hidden',
+    },
+    progressBar: {
+        backgroundColor: '#3b82f6',
+        height: '100%',
+        transition: 'width 0.3s ease-in-out',
     }
 };
 
