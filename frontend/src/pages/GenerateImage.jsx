@@ -343,6 +343,27 @@ const GenerateImage = () => {
             <div style={styles.content}>
                 <button onClick={() => navigate('/home')} style={styles.backButton}>← Back Home</button>
                 <h1 style={styles.title}>AI Generation Flow</h1>
+
+                <div
+                    style={styles.progressContainer}
+                    role="progressbar"
+                    aria-label={`Step ${step} of 5`}
+                    aria-valuenow={step}
+                    aria-valuemin={1}
+                    aria-valuemax={5}
+                >
+                    {[1, 2, 3, 4, 5].map((i) => (
+                        <div
+                            key={i}
+                            style={{
+                                ...styles.progressDot,
+                                ...(i <= step ? styles.progressDotActive : {})
+                            }}
+                            aria-hidden="true"
+                        />
+                    ))}
+                </div>
+
                 <p style={styles.description}>
                     {step === 1 && "Start by describing your vision."}
                     {step === 2 && "The AI has planned your storyboard. Ready to generate?"}
@@ -386,6 +407,22 @@ const styles = {
         fontWeight: '800',
         marginBottom: '0.5rem',
         textAlign: 'center',
+    },
+    progressContainer: {
+        display: 'flex',
+        justifyContent: 'center',
+        gap: '0.5rem',
+        marginBottom: '1.5rem',
+    },
+    progressDot: {
+        width: '2.5rem',
+        height: '0.5rem',
+        borderRadius: '9999px',
+        backgroundColor: '#f1f5f9',
+        transition: 'background-color 0.3s ease',
+    },
+    progressDotActive: {
+        backgroundColor: '#3b82f6',
     },
     subTitle: {
         fontSize: '1.25rem',
