@@ -338,11 +338,44 @@ const GenerateImage = () => {
         </div>
     );
 
+    const steps = ['Prompt', 'Storyboard', 'Images', 'Plan', 'Video'];
+
     return (
         <div style={styles.container}>
             <div style={styles.content}>
                 <button onClick={() => navigate('/home')} style={styles.backButton}>← Back Home</button>
                 <h1 style={styles.title}>AI Generation Flow</h1>
+
+                <div
+                    style={styles.progressContainer}
+                    role="progressbar"
+                    aria-valuenow={step}
+                    aria-valuemin="1"
+                    aria-valuemax="5"
+                    aria-label={`Step ${step} of 5: ${steps[step - 1]}`}
+                >
+                    {steps.map((stepName, index) => {
+                        const stepNumber = index + 1;
+                        let stepStyle = { ...styles.progressStep };
+
+                        if (stepNumber < step) {
+                            stepStyle = { ...stepStyle, ...styles.progressStepCompleted };
+                        } else if (stepNumber === step) {
+                            stepStyle = { ...stepStyle, ...styles.progressStepActive };
+                        }
+
+                        return (
+                            <div
+                                key={stepName}
+                                style={stepStyle}
+                                aria-current={stepNumber === step ? "step" : undefined}
+                            >
+                                {stepNumber}. {stepName}
+                            </div>
+                        );
+                    })}
+                </div>
+
                 <p style={styles.description}>
                     {step === 1 && "Start by describing your vision."}
                     {step === 2 && "The AI has planned your storyboard. Ready to generate?"}
@@ -587,6 +620,35 @@ const styles = {
         fontSize: '0.9rem',
         backgroundColor: '#eff6ff',
         marginBottom: '0.5rem',
+    },
+    progressContainer: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        marginBottom: '1.5rem',
+        padding: '0.5rem',
+        backgroundColor: '#f8fafc',
+        borderRadius: '12px',
+        gap: '0.5rem',
+    },
+    progressStep: {
+        flex: 1,
+        textAlign: 'center',
+        padding: '0.5rem',
+        fontSize: '0.875rem',
+        fontWeight: '500',
+        color: '#64748b',
+        backgroundColor: '#f1f5f9',
+        borderRadius: '8px',
+        transition: 'all 0.3s ease',
+    },
+    progressStepActive: {
+        color: '#ffffff',
+        backgroundColor: '#3b82f6',
+        boxShadow: '0 2px 4px rgba(59, 130, 246, 0.3)',
+    },
+    progressStepCompleted: {
+        color: '#ffffff',
+        backgroundColor: '#10b981',
     }
 };
 
