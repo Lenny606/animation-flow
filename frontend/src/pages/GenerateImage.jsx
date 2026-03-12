@@ -158,6 +158,22 @@ const GenerateImage = () => {
         }
     };
 
+    const renderProgressBar = () => (
+        <div style={styles.progressBarContainer} role="progressbar" aria-valuenow={step} aria-valuemin="1" aria-valuemax="5" aria-label="Generation progress">
+            {[1, 2, 3, 4, 5].map(s => (
+                <div
+                    key={s}
+                    style={{
+                        ...styles.progressStep,
+                        ...(s === step ? styles.progressStepActive : {}),
+                        ...(s < step ? styles.progressStepComplete : {})
+                    }}
+                    aria-current={s === step ? 'step' : undefined}
+                />
+            ))}
+        </div>
+    );
+
     const handleExecutePlan = async () => {
         setIsLoading(true);
         setError('');
@@ -353,6 +369,8 @@ const GenerateImage = () => {
 
                 {error && <div style={styles.error}>{error}</div>}
 
+                {renderProgressBar()}
+
                 {step === 1 && renderForm()}
                 {step === 2 && renderScenario()}
                 {step === 3 && renderImages()}
@@ -396,6 +414,25 @@ const styles = {
         color: '#64748b',
         textAlign: 'center',
         marginBottom: '2.5rem',
+    },
+    progressBarContainer: {
+        display: 'flex',
+        gap: '0.5rem',
+        marginBottom: '2rem',
+        justifyContent: 'center',
+    },
+    progressStep: {
+        flex: 1,
+        height: '8px',
+        backgroundColor: '#e2e8f0',
+        borderRadius: '4px',
+        maxWidth: '4rem',
+    },
+    progressStepActive: {
+        backgroundColor: '#3b82f6',
+    },
+    progressStepComplete: {
+        backgroundColor: '#10b981',
     },
     form: {
         display: 'flex',
