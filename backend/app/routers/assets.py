@@ -2,7 +2,6 @@ from fastapi import APIRouter, HTTPException, BackgroundTasks, Depends, status
 from pydantic import BaseModel, Field
 from typing import List, Optional
 
-from app.core.agent.image_agent import image_agent
 from app.models.scenario import Scenario
 from app.models.asset import ImageAsset, VideoAsset
 from app.repositories.asset_repository import (
@@ -43,33 +42,7 @@ async def generate_assets(
     Triggers the Image Agent to generate assets for a given scenario.
     Saves the generated assets to the database.
     """
-    try:
-        inputs = {
-            "scenario": request.scenario,
-            "provider": request.llm_provider
-        }
-        
-        # Ainvoke the agent
-        result = await image_agent.ainvoke(inputs)
-        
-        assets_data = result.get("generated_assets", [])
-        
-        # Save to DB and return models
-        saved_assets = []
-        for asset_data in assets_data:
-            # Add scenario_id if not present in asset_data (agent should provide it but let's be safe)
-            if "scenario_id" not in asset_data and "_id" in request.scenario:
-                 asset_data["scenario_id"] = str(request.scenario["_id"])
-            elif "scenario_id" not in asset_data and "id" in request.scenario:
-                 asset_data["scenario_id"] = str(request.scenario["id"])
-                 
-            saved_asset = await image_repo.create(asset_data)
-            saved_assets.append(saved_asset)
-        
-        return saved_assets
-        
-    except Exception as e:
-        raise InternalServerException(detail=f"Failed to generate assets: {str(e)}")
+    raise HTTPException(status_code=501, detail="AI Agent logic has been removed. Not Implemented.")
 
 @router.get("/scenario/{scenario_id}/images", response_model=List[ImageAsset])
 async def get_scenario_images(

@@ -1,9 +1,8 @@
-from fastapi import APIRouter, BackgroundTasks, Depends, status
+from fastapi import APIRouter, BackgroundTasks, Depends, status, HTTPException
 from typing import Optional, List
 from pydantic import BaseModel, Field
 
 from app.models.scenario import Scenario
-from app.core.agent.graph import scenario_agent
 from app.core.error_handling import BaseAPIException, NotFoundException, InternalServerException
 from app.repositories.scenario_repository import ScenarioRepository, get_scenario_repository
 
@@ -27,32 +26,7 @@ async def generate_scenario(
     """
     Trigger the AI agent to generate a video scenario and save it to the database.
     """
-    try:
-        inputs = {
-            "topic": request.topic,
-            "style": request.style,
-            "target_audience": request.target_audience,
-            "duration": request.duration,
-            "llm_provider": request.llm_provider
-        }
-        
-        # Invoke the LangGraph agent with checkpointer config
-        config = {"configurable": {"thread_id": request.thread_id or "default-thread"}}
-        result = await scenario_agent.ainvoke(inputs, config=config)
-        
-        final_data = result.get("final_scenario")
-        if not final_data:
-            raise InternalServerException(detail="Agent failed to produce a final scenario.")
-            
-        # Create scenario in DB
-        scenario = await scenario_repo.create(final_data)
-        
-        return scenario
-        
-    except (BaseAPIException, InternalServerException):
-        raise
-    except Exception as e:
-        raise InternalServerException(detail=f"Failed to generate scenario: {str(e)}")
+    raise HTTPException(status_code=501, detail="AI Agent logic has been removed. Not Implemented.")
 
 @router.get("/", response_model=List[Scenario], summary="List scenarios", description="Retrieves a list of all scenarios.")
 async def list_scenarios(
@@ -81,11 +55,3 @@ async def delete_scenario(
     if not success:
         raise NotFoundException(detail=f"Scenario with ID {id} not found")
 
-@router.get("/{thread_id}/state", summary="Get agent state by thread ID", description="Retrieves the current state of the AI agent for a given thread.")
-async def get_agent_state(thread_id: str):
-    """
-    Retrieves the agent's state for the given thread ID.
-    """
-    config = {"configurable": {"thread_id": thread_id}}
-    state = await scenario_agent.aget_state(config)
-    return state

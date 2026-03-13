@@ -13,7 +13,7 @@ from app.core.error_handling import (
 from fastapi.exceptions import HTTPException, RequestValidationError
 from app.db.mongodb import db, MongoDB
 from app.db.redis import redis_client
-from app.routers import auth, agent, scenarios, assets, video, jenko, songs
+from app.routers import auth, scenarios, assets, video, jenko, songs
 from app.core.logging import logger
 from app.core.rate_limit import limiter
 from slowapi import _rate_limit_exceeded_handler
@@ -22,13 +22,6 @@ from contextlib import asynccontextmanager
 
 settings = get_settings()
 
-# Initialize LangSmith environment variables
-os.environ["LANGCHAIN_TRACING_V2"] = settings.LANGCHAIN_TRACING_V2
-os.environ["LANGCHAIN_ENDPOINT"] = settings.LANGCHAIN_ENDPOINT
-os.environ["LANGCHAIN_API_KEY"] = settings.LANGCHAIN_API_KEY
-os.environ["LANGCHAIN_PROJECT"] = settings.LANGCHAIN_PROJECT
-
-from app.core.agent.prompts import PromptService, get_prompt_service
 from app.db.mongodb import get_database
 
 @asynccontextmanager
@@ -44,18 +37,7 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.error(f"Failed to connect to Redis during startup: {e}")
 
-    # Sanity check for prompts
-    try:
-        database = await get_database()
-        prompt_service = await get_prompt_service(database)
-        story_prompt = await prompt_service.get_story_outline_template()
-        if story_prompt:
-            logger.info("Prompts initialized and loaded successfully.")
-        else:
-            logger.warning("No prompt templates found during startup.")
-    except Exception as e:
-        logger.error(f"Error checking prompts on startup: {e}")
-    
+
     yield
     # Shutdown
     db.close()
@@ -104,7 +86,6 @@ app.add_exception_handler(RequestValidationError, validation_exception_handler)
 app.add_exception_handler(Exception, global_exception_handler)
 
 app.include_router(auth.router, prefix=f"{settings.API_V1_STR}/auth", tags=["Authentication"])
-app.include_router(agent.router, prefix=f"{settings.API_V1_STR}/agent", tags=["AI Agent"])
 app.include_router(scenarios.router, prefix=f"{settings.API_V1_STR}/scenarios", tags=["Scenarios"])
 app.include_router(assets.router, prefix=f"{settings.API_V1_STR}/assets", tags=["Assets"])
 app.include_router(video.router, prefix=f"{settings.API_V1_STR}/video", tags=["Video"])

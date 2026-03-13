@@ -5,7 +5,6 @@ import uuid
 import json
 import redis.asyncio as redis
 
-from app.core.agent.video_agent import video_agent
 from app.models.asset import ImageAsset, VideoAsset
 from app.db.redis import get_redis
 from app.repositories.asset_repository import VideoAssetRepository, get_video_asset_repository
@@ -41,33 +40,7 @@ async def generate_video_plan(
     """
     Step 1: Generates a plan (script) for video generation and saves it to Redis.
     """
-    try:
-        plan_id = str(uuid.uuid4())
-        
-        # Generate a simple "script" or plan description
-        script = []
-        for img in video_request.image_assets:
-            prompt = img.prompt_used if hasattr(img, 'prompt_used') else img.get("prompt_used", "Animate this scene")
-            img_id = img.id if hasattr(img, 'id') else img.get('id', 'unknown')
-            script.append(f"Generate video for image {img_id} using prompt: '{prompt}'")
-        
-        if video_request.generate_voiceover:
-            script.append("Generate voiceover for the video.")
-
-        # Store the full request context in Redis
-        plan_data = {
-            "request": video_request.model_dump(),
-            "script": script,
-            "user_id": str(current_user.id) if hasattr(current_user, 'id') else None
-        }
-        
-        # Save to Redis with 1 hour expiration
-        await redis_conn.setex(f"video_plan:{plan_id}", 3600, json.dumps(plan_data))
-        
-        return VideoPlanResponse(plan_id=plan_id, script=script)
-
-    except Exception as e:
-        raise InternalServerException(detail=f"Failed to generate video plan: {str(e)}")
+    raise HTTPException(status_code=501, detail="Video plan endpoint is disabled due to AI Agent removal. Not Implemented.")
 
 @router.post("/execute", response_model=List[VideoAsset], summary="Execute a video plan", description="Executes a previously created video generation plan. This is where the actual (time-consuming) generation happens.")
 @limiter.limit(get_role_limit("2/minute", "5/minute", "30/minute"))
@@ -82,41 +55,4 @@ async def execute_video_plan(
     Step 2: Executes a previously confirmed video generation plan.
     Saves the generated video assets to the database.
     """
-    try:
-        # Retrieve plan from Redis
-        plan_json = await redis_conn.get(f"video_plan:{execute_request.plan_id}")
-        if not plan_json:
-            raise NotFoundException(detail="Plan not found or expired")
-        
-        plan_data = json.loads(plan_json)
-        
-        # Verify ownership
-        if plan_data.get("user_id") and plan_data.get("user_id") != str(current_user.id):
-             raise ForbiddenException(detail="Not authorized to execute this plan")
-
-        original_request = plan_data.get("request")
-        
-        # Reconstruct inputs for the agent
-        inputs = {
-            "scenario_id": original_request["scenario_id"],
-            "image_assets": original_request["image_assets"],
-            "provider": original_request["provider"],
-            "generate_voiceover": original_request["generate_voiceover"]
-        }
-        
-        result = await video_agent.ainvoke(inputs)
-        
-        assets_data = result.get("video_assets", [])
-        
-        # Save to DB and return models
-        saved_assets = []
-        for asset_data in assets_data:
-            saved_asset = await video_repo.create(asset_data)
-            saved_assets.append(saved_asset)
-        
-        return saved_assets
-        
-    except (NotFoundException, ForbiddenException):
-        raise
-    except Exception as e:
-        raise InternalServerException(detail=f"Failed to execute video plan: {str(e)}")
+    raise HTTPException(status_code=501, detail="Video execution endpoint is disabled due to AI Agent removal. Not Implemented.")

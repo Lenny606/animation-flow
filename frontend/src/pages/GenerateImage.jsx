@@ -40,6 +40,7 @@ const GenerateImage = () => {
             });
             if (response.ok) {
                 const data = await response.json();
+                console.log(data);
                 setSongs(data);
             }
         } catch (err) {
