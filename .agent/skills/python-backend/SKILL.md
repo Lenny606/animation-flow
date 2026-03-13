@@ -45,6 +45,11 @@ This skill provides a set of instructions and best practices for building robust
 - Use `ruff` for fast linting and formatting.
 - Write unit tests for graph nodes and utility functions using `pytest`.
 
+### 5. Debugging & Logging
+- **Backend Logs**: The application logs to both stdout and a file.
+- **Log Path**: `./backend/logs/app.log` (mapped from `/app/logs/app.log` in container).
+- **Configuration**: Managed in `app/core/logging.py` using `RotatingFileHandler`.
+
 ## Resource Files
 
 Check the `resources/` directory for boilerplate configurations:
