@@ -50,5 +50,5 @@ This skill provides a set of instructions and best practices for building modern
 ## Resource Files
 
 Check the `resources/` directory for boilerplate configurations:
-- [query-client.ts](file:///home/tomas/my-projects/animation-flow/skills/react-web-dev/resources/query-client.ts) - Standard QueryClient setup.
-- [tailwind.config.js](file:///home/tomas/my-projects/animation-flow/skills/react-web-dev/resources/tailwind.config.js) - Premium theme configuration.
+- [query-client.ts](file:///home/tomas/my-projects/animation-flow/.agent/skills/react-web-dev/resources/query-client.ts) - Standard QueryClient setup.
+- [tailwind.config.js](file:///home/tomas/my-projects/animation-flow/.agent/skills/react-web-dev/resources/tailwind.config.js) - Premium theme configuration.
