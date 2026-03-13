@@ -31,6 +31,15 @@ def setup_logging():
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
 
+    # Error File Handler
+    error_log_file = settings.ERROR_LOG_FILE_PATH
+    error_file_handler = RotatingFileHandler(
+        error_log_file, maxBytes=10*1024*1024, backupCount=5
+    )
+    error_file_handler.setLevel(logging.ERROR)
+    error_file_handler.setFormatter(formatter)
+    logger.addHandler(error_file_handler)
+
     return logger
 
 logger = setup_logging()

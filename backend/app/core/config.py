@@ -6,6 +6,8 @@ class Settings(BaseSettings):
     VERSION: str = "0.1.0"
     API_V1_STR: str = "/api/v1"
     LOG_FILE_PATH: str = "/app/logs/app.log"
+    ERROR_LOG_FILE_PATH: str = "/app/logs/error.log"
+    DISABLE_AUTH: bool = False
 
     MONGODB_URL: str = "mongodb://localhost:27017"
     DATABASE_NAME: str = "ai_app_db"
@@ -18,7 +20,7 @@ class Settings(BaseSettings):
 
     BACKEND_URL: str = "http://localhost:8000"
     FRONTEND_URL: str = "http://localhost:5173"
-    CORS_ORIGINS: str = "http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000,http://127.0.0.1:3000,https://animation-flow-lac.vercel.app,https://animation-flow-1pys.vercel.app"
+    CORS_ORIGINS: str = "http://localhost:5173,http://127.0.0.1:5173,http://localhost:5172,http://127.0.0.1:5172,http://localhost:3000,http://127.0.0.1:3000,https://animation-flow-lac.vercel.app,https://animation-flow-1pys.vercel.app"
     
     # LangSmith Settings
     LANGCHAIN_TRACING_V2: str = "false"

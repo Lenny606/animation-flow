@@ -10,7 +10,10 @@ from app.repositories.user_repository import UserRepository, get_user_repository
 from app.core.error_handling import UnauthorizedException
 
 settings = get_settings()
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{settings.API_V1_STR}/auth/token")
+oauth2_scheme = OAuth2PasswordBearer(
+    tokenUrl=f"{settings.API_V1_STR}/auth/token",
+    auto_error=not settings.DISABLE_AUTH
+)
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     # bcrypt.checkpw requires bytes
@@ -44,9 +47,20 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     return encoded_jwt
 
 async def get_current_user(
-    token: Annotated[str, Depends(oauth2_scheme)],
+    token: Annotated[Optional[str], Depends(oauth2_scheme)] = None,
     user_repo: UserRepository = Depends(get_user_repository)
 ) -> UserInDB:
+    if settings.DISABLE_AUTH:
+        # Return a mock admin user for local development
+        return UserInDB(
+            email="admin@example.com",
+            hashed_password="mock_password",
+            role=UserRole.ADMIN
+        )
+
+    if token is None:
+        raise UnauthorizedException(detail="Not authenticated")
+
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         email: str = payload.get("sub")
