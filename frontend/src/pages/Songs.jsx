@@ -1,13 +1,25 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
 const Songs = () => {
+    const [selectedSongIds, setSelectedSongIds] = useState(new Set());
+
     const getAuthHeaders = () => {
         const token = localStorage.getItem('token');
         return {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
         };
+    };
+
+    const toggleSelection = (songId) => {
+        const newSelected = new Set(selectedSongIds);
+        if (newSelected.has(songId)) {
+            newSelected.delete(songId);
+        } else {
+            newSelected.add(songId);
+        }
+        setSelectedSongIds(newSelected);
     };
 
     const fetchSongs = async () => {
@@ -53,31 +65,43 @@ const Songs = () => {
     return (
         <div style={styles.container}>
             <header style={styles.header}>
-                <h1 style={styles.title}>Songs Library</h1>
+                <h1 style={styles.title}>Songs Library (v2)</h1>
                 <p style={styles.subtitle}>Your collection of AI-generated music and lyrics.</p>
             </header>
 
             {songs && songs.length > 0 ? (
-                <div style={styles.songGrid}>
-                    {songs.map((song) => (
-                        <div key={song._id || song.id} style={styles.songCard}>
-                            <div style={styles.songIcon}>🎵</div>
-                            <div style={styles.songInfo}>
+                <div style={styles.songList}>
+                    {songs.map((song) => {
+                        const songId = song._id || song.id;
+                        const isSelected = selectedSongIds.has(songId);
+                        return (
+                            <div 
+                                key={songId} 
+                                style={{
+                                    ...styles.songItem,
+                                    ...(isSelected ? styles.songItemActive : {})
+                                }}
+                                onClick={() => toggleSelection(songId)}
+                            >
                                 <h3 style={styles.songTitle}>{song.title}</h3>
-                                <p style={styles.songMeta}>
-                                    <span style={styles.tag}>{song.category}</span>
-                                    <span style={styles.playlist}>{song.playlist_name}</span>
-                                </p>
-                                <div style={styles.lyricsPreview}>
-                                    {song.text.substring(0, 100)}...
-                                </div>
+                                <button 
+                                    style={{
+                                        ...styles.selectBtn,
+                                        ...(isSelected ? styles.selectBtnActive : {})
+                                    }}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        toggleSelection(songId);
+                                    }}
+                                >
+                                    {isSelected ? 'Unselect' : 'Select'}
+                                </button>
                             </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             ) : (
                 <div style={styles.placeholderCard}>
-                    <div style={styles.icon}>🎵</div>
                     <h2>Your music will appear here</h2>
                     <p>Start by generating an animation with a custom soundtrack.</p>
                 </div>
@@ -95,84 +119,57 @@ const styles = {
         marginBottom: '3rem',
     },
     title: {
-        fontSize: '2.5rem',
+        fontSize: '1.5rem',
         color: '#0f172a',
         fontWeight: '800',
-        marginBottom: '0.5rem',
+        marginBottom: '0.25rem',
     },
     subtitle: {
         color: '#64748b',
         fontSize: '1.1rem',
     },
-    songGrid: {
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-        gap: '1.5rem',
+    songList: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '0.75rem',
     },
-    songCard: {
+    songItem: {
         backgroundColor: '#ffffff',
-        borderRadius: '20px',
-        padding: '1.5rem',
-        display: 'flex',
-        gap: '1.25rem',
-        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)',
+        borderRadius: '12px',
+        padding: '1rem 1.5rem',
+        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
         border: '1px solid rgba(0, 0, 0, 0.05)',
-        transition: 'transform 0.2s, box-shadow 0.2s',
+        transition: 'all 0.2s ease',
         cursor: 'pointer',
-    },
-    songIcon: {
-        fontSize: '1.75rem',
-        backgroundColor: '#eff6ff',
-        color: '#3b82f6',
-        width: '56px',
-        height: '56px',
-        borderRadius: '16px',
         display: 'flex',
+        justifyContent: 'space-between',
         alignItems: 'center',
-        justifyContent: 'center',
-        flexShrink: 0,
     },
-    songInfo: {
-        flex: 1,
-        overflow: 'hidden',
+    songItemActive: {
+        borderColor: '#3b82f6',
+        backgroundColor: '#eff6ff',
+        transform: 'translateX(4px)',
     },
     songTitle: {
         fontSize: '1.1rem',
-        fontWeight: '700',
+        fontWeight: '600',
         color: '#1e293b',
-        marginBottom: '0.5rem',
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
+        margin: 0,
     },
-    songMeta: {
-        display: 'flex',
-        gap: '0.5rem',
-        marginBottom: '0.75rem',
-        flexWrap: 'wrap',
-    },
-    tag: {
-        fontSize: '0.75rem',
+    selectBtn: {
         backgroundColor: '#f1f5f9',
         color: '#475569',
-        padding: '0.2rem 0.6rem',
-        borderRadius: '100px',
-        fontWeight: '600',
-    },
-    playlist: {
-        fontSize: '0.75rem',
-        color: '#64748b',
-        display: 'flex',
-        alignItems: 'center',
-    },
-    lyricsPreview: {
+        border: 'none',
+        borderRadius: '8px',
+        padding: '0.4rem 1rem',
         fontSize: '0.875rem',
-        color: '#64748b',
-        lineHeight: '1.5',
-        display: '-webkit-box',
-        WebkitLineClamp: 2,
-        WebkitBoxOrient: 'vertical',
-        overflow: 'hidden',
+        fontWeight: '600',
+        cursor: 'pointer',
+        transition: 'all 0.2s ease',
+    },
+    selectBtnActive: {
+        backgroundColor: '#3b82f6',
+        color: '#ffffff',
     },
     placeholderCard: {
         backgroundColor: '#ffffff',
@@ -181,10 +178,6 @@ const styles = {
         textAlign: 'center',
         boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)',
         border: '1px solid rgba(0, 0, 0, 0.05)',
-    },
-    icon: {
-        fontSize: '4rem',
-        marginBottom: '1.5rem',
     },
     btn: {
         marginTop: '2rem',
