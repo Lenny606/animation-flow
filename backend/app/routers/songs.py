@@ -6,14 +6,27 @@ from app.core.error_handling import NotFoundException, InternalServerException
 
 router = APIRouter()
 
-@router.get("/", response_model=List[Song], summary="Get all songs", description="Retrieves a list of all songs available in the database.")
+
+@router.get("/", response_model=List[Song], summary="Get all songs without pagination")
+async def get_all_songs(
+    song_repo: SongRepository = Depends(get_song_repository)
+):
+    """
+    Get all songs in the database.
+    """
+    try:
+        return await song_repo.get_all_songs()
+    except Exception as e:
+        raise InternalServerException(detail=f"Failed to retrieve all songs: {str(e)}")
+
+@router.get("/paginated", response_model=List[Song], summary="Get songs with pagination")
 async def get_songs(
     skip: int = 0,
     limit: int = 100,
     song_repo: SongRepository = Depends(get_song_repository)
 ):
     """
-    Get all saved songs.
+    Get saved songs with skip/limit.
     """
     try:
         return await song_repo.get_multi(skip=skip, limit=limit)

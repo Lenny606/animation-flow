@@ -18,5 +18,10 @@ class SongRepository(BaseRepository[Song]):
         item = await self.collection.find_one({"title": title})
         return self._map_to_model(item)
 
+    async def get_all_songs(self) -> List[Song]:
+        cursor = self.collection.find()
+        results = await cursor.to_list(length=None)
+        return [self._map_to_model(item) for item in results]
+
 async def get_song_repository(db: AsyncIOMotorDatabase = Depends(get_database)) -> SongRepository:
     return SongRepository(db)

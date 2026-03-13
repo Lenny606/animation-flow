@@ -24,7 +24,7 @@ services:
       context: .
       dockerfile: infrastructure/frontend.Dockerfile
       args:
-        - VITE_API_URL=http://localhost:8000
+        - VITE_API_URL=http://localhost:8000/api/v1
         - VITE_DISABLE_AUTH=${VITE_DISABLE_AUTH:-true}
     restart: unless-stopped
     ports:
