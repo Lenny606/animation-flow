@@ -47,11 +47,7 @@ This skill provides a set of instructions and best practices for building robust
 
 ## Resource Files
 
-### 2. Boilerplate Resource Files (React)
-- [query-client.ts](file:///home/tomas/my-projects/animation-flow/.agent/skills/react-web-dev/resources/query-client.ts): Standard TanStack Query client configuration.
-- [tailwind.config.js](file:///home/tomas/my-projects/animation-flow/.agent/skills/react-web-dev/resources/tailwind.config.js): A premium Tailwind configuration.
-
-### 3. Boilerplate Resource Files (Python)
-- [pyproject.toml](file:///home/tomas/my-projects/animation-flow/.agent/skills/python-backend/resources/pyproject.toml): Poetry config with LangChain/LangGraph 1.0 dependencies.
-- [docker-compose.yml](file:///home/tomas/my-projects/animation-flow/.agent/skills/python-backend/resources/docker-compose.yml): Local development orchestration.
-- [graph.py](file:///home/tomas/my-projects/animation-flow/.agent/skills/python-backend/resources/graph.py): LangGraph template with state-aware workflow.
+Check the `resources/` directory for boilerplate configurations:
+- [pyproject.toml](file:///home/tomas/my-projects/animation-flow/.agent/skills/python-backend/resources/pyproject.toml) - Base Poetry configuration.
+- [docker-compose.yml](file:///home/tomas/my-projects/animation-flow/.agent/skills/python-backend/resources/docker-compose.yml) - Dev environment setup.
+- [graph.py](file:///home/tomas/my-projects/animation-flow/.agent/skills/python-backend/resources/graph.py) - Template for LangGraph 1.0+ workflows.
