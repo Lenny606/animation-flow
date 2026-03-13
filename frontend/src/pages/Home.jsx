@@ -69,22 +69,12 @@ const Home = () => {
 
 const styles = {
     container: {
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        minHeight: '100vh',
-        backgroundColor: '#f8fafc',
-        padding: '20px',
-        fontFamily: "'Inter', sans-serif",
+        width: '100%',
+        padding: '2rem 0',
     },
     content: {
-        textAlign: 'center',
-        backgroundColor: '#ffffff',
-        padding: '3rem',
-        borderRadius: '20px',
-        boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05)',
+        textAlign: 'left',
         width: '100%',
-        maxWidth: '500px',
     },
     title: {
         color: '#0f172a',
@@ -113,9 +103,8 @@ const styles = {
     },
     buttonGroup: {
         display: 'flex',
-        flexDirection: 'column',
         gap: '1rem',
-        alignItems: 'center',
+        marginTop: '2rem',
     },
     ctaButton: {
         backgroundColor: '#3b82f6',
@@ -123,13 +112,11 @@ const styles = {
         border: 'none',
         borderRadius: '12px',
         padding: '0.75rem 2rem',
-        fontSize: '1.1rem',
+        fontSize: '1rem',
         fontWeight: '700',
         cursor: 'pointer',
         boxShadow: '0 4px 6px -1px rgba(59, 130, 246, 0.3)',
         transition: 'transform 0.2s, background-color 0.2s',
-        width: '100%',
-        maxWidth: '250px',
     },
     modalContent: {
         display: 'flex',
