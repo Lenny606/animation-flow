@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Login from './pages/Login';
 import Home from './pages/Home';
 import GenerateImage from './pages/GenerateImage';
+import Songs from './pages/Songs';
 import MainLayout from './components/MainLayout';
 import './App.css';
 
@@ -11,6 +12,7 @@ function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/home" element={<MainLayout><Home /></MainLayout>} />
+        <Route path="/songs" element={<MainLayout><Songs /></MainLayout>} />
         <Route path="/generate" element={<MainLayout><GenerateImage /></MainLayout>} />
         <Route path="/" element={<Navigate to="/login" replace />} />
       </Routes>
