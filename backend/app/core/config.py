@@ -31,6 +31,7 @@ class Settings(BaseSettings):
     # LLM Settings
     OPENAI_API_KEY: str = ""
     GOOGLE_API_KEY: str = ""
+    GEMINI_API_KEY: str = ""
     OPENAI_MODEL_NAME: str = "gpt-3.5-turbo"
     GEMINI_MODEL_NAME: str = "gemini-pro"
     LOCAL_LLM_BASE_URL: str = "http://localhost:11434/v1"
