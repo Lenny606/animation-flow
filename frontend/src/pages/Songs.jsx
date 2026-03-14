@@ -75,8 +75,8 @@ const Songs = () => {
                         const songId = song._id || song.id;
                         const isSelected = selectedSongIds.has(songId);
                         return (
-                            <div 
-                                key={songId} 
+                            <div
+                                key={songId}
                                 style={{
                                     ...styles.songItem,
                                     ...(isSelected ? styles.songItemActive : {})
@@ -84,7 +84,7 @@ const Songs = () => {
                                 onClick={() => toggleSelection(songId)}
                             >
                                 <h3 style={styles.songTitle}>{song.title}</h3>
-                                <button 
+                                <button
                                     style={{
                                         ...styles.selectBtn,
                                         ...(isSelected ? styles.selectBtnActive : {})

@@ -1,4 +1,4 @@
-
+version: '3.8'
 
 services:
   api:
@@ -22,13 +22,13 @@ services:
   frontend:
     build:
       context: .
-      dockerfile: infrastructure/frontend.dev.Dockerfile
+      dockerfile: infrastructure/frontend.Dockerfile
       args:
         - VITE_API_URL=http://localhost:8000/api/v1
         - VITE_DISABLE_AUTH=${VITE_DISABLE_AUTH:-true}
     restart: unless-stopped
     ports:
-      - "5172:5173"
+      - "5173:5173"
     volumes:
       - ./frontend:/app
       - /app/node_modules
