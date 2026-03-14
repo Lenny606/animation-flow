@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import { useSelection } from '../context/SelectionContext';
 
 const PromptGeneration = () => {
-    const { selection } = useSelection();
-    const [activeStyle, setActiveStyle] = useState('pastel-cartoon');
+    const { selection, setStyleSelection } = useSelection();
     const [generatedPrompt, setGeneratedPrompt] = useState('');
     const [isGenerating, setIsGenerating] = useState(false);
 
@@ -20,7 +19,7 @@ const PromptGeneration = () => {
         setIsGenerating(true);
         setTimeout(() => {
             const base = selection.song ? `Based on "${selection.song.title}": ` : '';
-            const selectedStyle = stylesList.find(s => s.id === activeStyle);
+            const selectedStyle = stylesList.find(s => s.id === selection.style);
             setGeneratedPrompt(`${base}${selectedStyle.prompt}. Ethereal atmosphere and fluid motion.`);
             setIsGenerating(false);
         }, 800);
@@ -44,8 +43,8 @@ const PromptGeneration = () => {
                     {stylesList.map(style => (
                         <button 
                             key={style.id}
-                            style={{...styles.optionBtn, ...(activeStyle === style.id ? styles.activeOption : {})}}
-                            onClick={() => setActiveStyle(style.id)}
+                            style={{...styles.optionBtn, ...(selection.style === style.id ? styles.activeOption : {})}}
+                            onClick={() => setStyleSelection(style.id)}
                         >
                             {style.name}
                         </button>

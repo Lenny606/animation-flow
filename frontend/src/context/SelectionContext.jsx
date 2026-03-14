@@ -5,13 +5,20 @@ const SelectionContext = createContext();
 export const SelectionProvider = ({ children }) => {
     const [selection, setSelection] = useState({
         song: null,
-        // Other options during process can be added here
+        style: 'pastel-cartoon', // Default style
     });
 
     const setSongSelection = (song) => {
         setSelection(prev => ({
             ...prev,
             song: song
+        }));
+    };
+
+    const setStyleSelection = (style) => {
+        setSelection(prev => ({
+            ...prev,
+            style: style
         }));
     };
 
@@ -32,7 +39,7 @@ export const SelectionProvider = ({ children }) => {
     };
 
     return (
-        <SelectionContext.Provider value={{ selection, setSongSelection, clearSongSelection, toggleSongSelection }}>
+        <SelectionContext.Provider value={{ selection, setSongSelection, setStyleSelection, clearSongSelection, toggleSongSelection }}>
             {children}
         </SelectionContext.Provider>
     );

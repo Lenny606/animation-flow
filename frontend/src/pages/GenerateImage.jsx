@@ -4,7 +4,7 @@ import { useSelection } from '../context/SelectionContext';
 
 const GenerateImage = () => {
     const navigate = useNavigate();
-    const { selection, toggleSongSelection } = useSelection();
+    const { selection, toggleSongSelection, setStyleSelection } = useSelection();
     const [isLoading, setIsLoading] = useState(false);
     const [step, setStep] = useState(1); // 1: Form, 2: Scenario Ready, 3: Images Ready, 4: Plan Review, 5: Result
     const [error, setError] = useState('');
@@ -63,6 +63,15 @@ const GenerateImage = () => {
         }
     }, [selection.song]);
 
+    useEffect(() => {
+        if (selection.style) {
+            setFormData(prev => ({
+                ...prev,
+                style: selection.style
+            }));
+        }
+    }, [selection.style]);
+
     const handleSongSelect = (e) => {
         const songId = e.target.value;
         const selectedSong = songs.find(s => s._id === songId || s.id === songId);
@@ -75,6 +84,10 @@ const GenerateImage = () => {
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
+        
+        if (name === 'style') {
+            setStyleSelection(value);
+        }
     };
 
     const handleGenerateScenario = async (e) => {
