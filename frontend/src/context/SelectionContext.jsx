@@ -1,12 +1,27 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const SelectionContext = createContext();
 
 export const SelectionProvider = ({ children }) => {
-    const [selection, setSelection] = useState({
-        song: null,
-        style: 'pastel-cartoon', // Default style
+    // Load initial state from localStorage
+    const [selection, setSelection] = useState(() => {
+        try {
+            const saved = localStorage.getItem('animation_flow_selection');
+            if (saved) return JSON.parse(saved);
+        } catch (error) {
+            console.error('Error parsing selection from localStorage:', error);
+        }
+        return {
+            song: null,
+            style: 'pastel-cartoon',
+            imageCount: 4,
+        };
     });
+
+    // Save to localStorage whenever selection changes
+    useEffect(() => {
+        localStorage.setItem('animation_flow_selection', JSON.stringify(selection));
+    }, [selection]);
 
     const setSongSelection = (song) => {
         setSelection(prev => ({
@@ -19,6 +34,13 @@ export const SelectionProvider = ({ children }) => {
         setSelection(prev => ({
             ...prev,
             style: style
+        }));
+    };
+
+    const setImageCountSelection = (count) => {
+        setSelection(prev => ({
+            ...prev,
+            imageCount: count
         }));
     };
 
@@ -39,7 +61,14 @@ export const SelectionProvider = ({ children }) => {
     };
 
     return (
-        <SelectionContext.Provider value={{ selection, setSongSelection, setStyleSelection, clearSongSelection, toggleSongSelection }}>
+        <SelectionContext.Provider value={{ 
+            selection, 
+            setSongSelection, 
+            setStyleSelection, 
+            setImageCountSelection,
+            clearSongSelection, 
+            toggleSongSelection 
+        }}>
             {children}
         </SelectionContext.Provider>
     );

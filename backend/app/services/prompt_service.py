@@ -1,44 +1,49 @@
-from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.messages import SystemMessage, HumanMessage
 from app.services.llm_service import get_llm
 from app.core.logging import logger
+import yaml
+from pathlib import Path
 
 class PromptService:
     def __init__(self):
         self.llm = get_llm()
-        self.system_prompt = (
-            "You are an expert AI prompt engineer for animations and video generation. "
-            "Your goal is to optimize or generate a highly descriptive and effective prompt "
-            "for AI video models based on the user's input."
-        )
+        
+        # Load prompt from YAML
+        prompt_path = Path(__file__).parent.parent / "prompts" / "prompt_image_generation.yaml"
+        try:
+            with open(prompt_path, "r") as f:
+                prompt_data = yaml.safe_load(f)
+                self.system_prompt = prompt_data.get("template_text", "")
+                if not self.system_prompt:
+                    logger.warning("Loaded system prompt template is empty.")
+                    self.system_prompt = "You are an expert illustrator."
+        except Exception as e:
+            logger.error(f"Error loading system prompt from {prompt_path}: {e}")
+            self.system_prompt = "You are an AI assistant."
 
-    async def generate_optimized_prompt(self, song_title: str, song_text: str, style: str) -> str:
+    async def generate_optimized_prompt(self, song_title: str, song_text: str, style: str, image_count: int = 4) -> str:
         """
         Uses LLM to optimize the user's input into a better prompt.
         """
         try:
-            prompt_template = ChatPromptTemplate.from_messages([
-                ("system", self.system_prompt),
-                ("user", (
-                    "Create a detailed AI video generation prompt based on this context:\n"
-                    "Song Title: {song_title}\n"
-                    "Lyrics/Text: {song_text}\n"
-                    "Visual Style: {style}\n\n"
-                    "The prompt should be immersive, descriptive, and capture the mood of the song."
+            messages = [
+                SystemMessage(content=self.system_prompt),
+                HumanMessage(content=(
+                    f"Please generate the image prompts based on this storage/song data:\n\n"
+                    f"SONG TITLE: {song_title}\n"
+                    f"SONG TEXT/LYRICS:\n{song_text}\n\n"
+                    f"DESIRED STYLE: {style}\n"
+                    f"NUMBER OF SCENES: {image_count}"
                 ))
-            ])
-            
-            chain = prompt_template | self.llm
-            response = await chain.ainvoke({
-                "song_title": song_title,
-                "song_text": song_text,
-                "style": style
-            })
+            ]
+
+            response = await self.llm.ainvoke(messages)
             
             return response.content
         except Exception as e:
-            logger.error(f"Error generating optimized prompt: {e}")
+            logger.error(f"Error generating optimized prompt: {e}", exc_info=True)
             # Fallback to original text if AI fails
-            return user_input
+            return song_text
 
 def get_prompt_service():
     return PromptService()
