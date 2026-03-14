@@ -16,12 +16,17 @@ def mock_prompt_service():
     app.dependency_overrides.clear()
 
 def test_generate_prompt(mock_prompt_service):
-    payload = {"text": "Test prompt for optimization"}
+    payload = {
+        "song_title": "Test Song",
+        "song_text": "Lyrics for test song",
+        "style": "pastel-cartoon"
+    }
     response = client.post("/api/v1/prompts/generate-prompt", json=payload)
     
     assert response.status_code == 200
     data = response.json()
-    assert data["received_text"] == "Test prompt for optimization"
+    assert data["song_title"] == "Test Song"
+    assert data["style"] == "pastel-cartoon"
     assert data["optimized_text"] == "Optimized: Test prompt for optimization"
     assert data["status"] == "ok"
 

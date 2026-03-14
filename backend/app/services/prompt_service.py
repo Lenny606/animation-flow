@@ -11,18 +11,28 @@ class PromptService:
             "for AI video models based on the user's input."
         )
 
-    async def generate_optimized_prompt(self, user_input: str) -> str:
+    async def generate_optimized_prompt(self, song_title: str, song_text: str, style: str) -> str:
         """
         Uses LLM to optimize the user's input into a better prompt.
         """
         try:
             prompt_template = ChatPromptTemplate.from_messages([
                 ("system", self.system_prompt),
-                ("user", "Optimize this prompt for an AI video model: {user_input}")
+                ("user", (
+                    "Create a detailed AI video generation prompt based on this context:\n"
+                    "Song Title: {song_title}\n"
+                    "Lyrics/Text: {song_text}\n"
+                    "Visual Style: {style}\n\n"
+                    "The prompt should be immersive, descriptive, and capture the mood of the song."
+                ))
             ])
             
             chain = prompt_template | self.llm
-            response = await chain.ainvoke({"user_input": user_input})
+            response = await chain.ainvoke({
+                "song_title": song_title,
+                "song_text": song_text,
+                "style": style
+            })
             
             return response.content
         except Exception as e:

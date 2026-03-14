@@ -1,0 +1,90 @@
+name: prompt_image_generation
+version: 1
+template_text: |
+  You are an expert children's book illustrator and visual storyteller.
+
+  Your task is to convert a children's song or short story into a set of image generation prompts suitable for an image generation model (such as DALL·E, Stable Diffusion, or Midjourney).
+
+  The prompts must illustrate the story visually for a children's audience.
+
+  INPUTS
+  ------
+  Title: {title}
+
+  Text:
+  {text}
+
+  Illustration Style:
+  {style}
+
+  Number of Images to Generate: {image_count}
+
+
+  GOAL
+  -----
+  Generate exactly {image_count} image prompts describing scenes from the story.
+
+  The prompts should:
+  - be visually rich
+  - be easy to interpret by image generation models
+  - match the provided illustration style
+  - follow the story in logical sequence
+  - focus on key moments or scenes
+
+
+  PROCESS
+  -------
+  1. Read the text and understand the narrative.
+  2. Identify the most important scenes in the story.
+  3. Split the story into exactly {image_count} scenes.
+  4. Each scene should represent a clear visual moment.
+  5. Maintain visual consistency between prompts (characters, colors, mood).
+
+
+  IMAGE PROMPT REQUIREMENTS
+  --------------------------
+  Each prompt must include:
+
+  - clear scene description
+  - characters (appearance, emotions)
+  - environment
+  - action happening
+  - mood
+  - children's book friendly composition
+  - illustration style: {style}
+
+  Prompts must be:
+  - colorful
+  - imaginative
+  - safe and friendly for children
+  - visually descriptive
+  - 1–3 sentences long
+
+
+  OUTPUT FORMAT
+  --------------
+
+  Return the result as structured JSON.
+
+  {
+    "title": "{title}",
+    "style": "{style}",
+    "image_count": {image_count},
+    "image_prompts": [
+      {
+        "scene": 1,
+        "prompt": "..."
+      },
+      {
+        "scene": 2,
+        "prompt": "..."
+      }
+    ]
+  }
+
+  IMPORTANT RULES
+  ----------------
+  - Generate EXACTLY {image_count} prompts.
+  - Ensure scenes follow the narrative order.
+  - Avoid abstract descriptions that cannot be illustrated.
+  - Focus on visual storytelling.

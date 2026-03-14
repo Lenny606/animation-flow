@@ -15,14 +15,35 @@ const PromptGeneration = () => {
         { id: 'paper-cut', name: 'Paper Cut Animation', prompt: 'intricate paper cut animation style with layered depth and shadows' }
     ];
 
-    const handleGenerate = () => {
+    const handleGenerate = async () => {
+        if (!selection.song) return;
+        
         setIsGenerating(true);
-        setTimeout(() => {
-            const base = selection.song ? `Based on "${selection.song.title}": ` : '';
+        try {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/prompts/generate-prompt`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    song_title: selection.song.title,
+                    song_text: selection.song.text,
+                    style: selection.style || 'pastel-cartoon'
+                }),
+            });
+
+            if (!response.ok) throw new Error('Failed to generate prompt');
+            
+            const data = await response.json();
+            setGeneratedPrompt(data.optimized_text);
+        } catch (error) {
+            console.error('Error generating prompt:', error);
+            // Fallback for UI if API fails
             const selectedStyle = stylesList.find(s => s.id === selection.style);
-            setGeneratedPrompt(`${base}${selectedStyle.prompt}. Ethereal atmosphere and fluid motion.`);
+            setGeneratedPrompt(`Based on "${selection.song.title}": ${selectedStyle?.prompt || 'visual'}. Ethereal atmosphere.`);
+        } finally {
             setIsGenerating(false);
-        }, 800);
+        }
     };
 
     return (
