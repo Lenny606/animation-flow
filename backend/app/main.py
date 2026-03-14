@@ -13,7 +13,7 @@ from app.core.error_handling import (
 from fastapi.exceptions import HTTPException, RequestValidationError
 from app.db.mongodb import db, MongoDB
 from app.db.redis import redis_client
-from app.routers import auth, scenarios, assets, video, jenko, songs
+from app.routers import auth, scenarios, assets, video, jenko, songs, prompts
 from app.core.logging import logger
 from app.core.rate_limit import limiter
 from slowapi import _rate_limit_exceeded_handler
@@ -91,6 +91,7 @@ app.include_router(assets.router, prefix=f"{settings.API_V1_STR}/assets", tags=[
 app.include_router(video.router, prefix=f"{settings.API_V1_STR}/video", tags=["Video"])
 app.include_router(jenko.router, prefix=f"{settings.API_V1_STR}/jenko", tags=["Jenko"])
 app.include_router(songs.router, prefix=f"{settings.API_V1_STR}/songs", tags=["Songs"])
+app.include_router(prompts.router, prefix=f"{settings.API_V1_STR}/prompts", tags=["Prompts"])
 
 @app.get("/")
 async def root():
