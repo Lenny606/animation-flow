@@ -38,7 +38,7 @@ class PromptService:
         except Exception as e:
             logger.error(f"Error generating optimized prompt: {e}")
             # Fallback to original text if AI fails
-            return user_input
+            return song_text
 
 def get_prompt_service():
     return PromptService()
