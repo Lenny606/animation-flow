@@ -25,6 +25,13 @@ const Sidebar = () => {
                     <span className="nav-icon">🎵</span>
                     Songs
                 </NavLink>
+                <NavLink
+                    to="/prompts"
+                    className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}
+                >
+                    <span className="nav-icon">✍️</span>
+                    Prompt Generation
+                </NavLink>
             </nav>
         </aside>
     );

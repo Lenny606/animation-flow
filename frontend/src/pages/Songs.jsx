@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
+import { useSelection } from '../context/SelectionContext';
 
 const Songs = () => {
-    const [selectedSongIds, setSelectedSongIds] = useState(new Set());
+    const navigate = useNavigate();
+    const { selection, toggleSongSelection } = useSelection();
 
     const getAuthHeaders = () => {
         const token = localStorage.getItem('token');
@@ -10,16 +13,6 @@ const Songs = () => {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
         };
-    };
-
-    const toggleSelection = (songId) => {
-        const newSelected = new Set(selectedSongIds);
-        if (newSelected.has(songId)) {
-            newSelected.delete(songId);
-        } else {
-            newSelected.add(songId);
-        }
-        setSelectedSongIds(newSelected);
     };
 
     const fetchSongs = async () => {
@@ -65,15 +58,27 @@ const Songs = () => {
     return (
         <div style={styles.container}>
             <header style={styles.header}>
-                <h1 style={styles.title}>Songs Library (v2)</h1>
-                <p style={styles.subtitle}>Your collection of AI-generated music and lyrics.</p>
+                <div style={styles.headerTop}>
+                    <div>
+                        <h1 style={styles.title}>Songs Library (v2)</h1>
+                        <p style={styles.subtitle}>Your collection of AI-generated music and lyrics.</p>
+                    </div>
+                    {selection.song && (
+                        <button 
+                            style={styles.nextBtn}
+                            onClick={() => navigate('/prompts')}
+                        >
+                            Next: Generate Prompt →
+                        </button>
+                    )}
+                </div>
             </header>
 
             {songs && songs.length > 0 ? (
                 <div style={styles.songList}>
                     {songs.map((song) => {
                         const songId = song._id || song.id;
-                        const isSelected = selectedSongIds.has(songId);
+                        const isSelected = selection.song && (selection.song._id === songId || selection.song.id === songId);
                         return (
                             <div
                                 key={songId}
@@ -81,7 +86,7 @@ const Songs = () => {
                                     ...styles.songItem,
                                     ...(isSelected ? styles.songItemActive : {})
                                 }}
-                                onClick={() => toggleSelection(songId)}
+                                onClick={() => toggleSongSelection(song)}
                             >
                                 <h3 style={styles.songTitle}>{song.title}</h3>
                                 <button
@@ -91,7 +96,7 @@ const Songs = () => {
                                     }}
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        toggleSelection(songId);
+                                        toggleSongSelection(song);
                                     }}
                                 >
                                     {isSelected ? 'Unselect' : 'Select'}
@@ -117,6 +122,26 @@ const styles = {
     },
     header: {
         marginBottom: '3rem',
+    },
+    headerTop: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        gap: '1rem',
+        flexWrap: 'wrap',
+    },
+    nextBtn: {
+        backgroundColor: '#3b82f6',
+        color: 'white',
+        border: 'none',
+        borderRadius: '12px',
+        padding: '0.8rem 1.5rem',
+        fontSize: '1rem',
+        fontWeight: '700',
+        cursor: 'pointer',
+        boxShadow: '0 4px 6px -1px rgba(59, 130, 246, 0.3)',
+        transition: 'transform 0.2s, background-color 0.2s',
+        animation: 'slideIn 0.3s ease-out',
     },
     title: {
         fontSize: '1.5rem',

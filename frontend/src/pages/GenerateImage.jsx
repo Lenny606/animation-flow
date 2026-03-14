@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSelection } from '../context/SelectionContext';
 
 const GenerateImage = () => {
     const navigate = useNavigate();
+    const { selection, toggleSongSelection } = useSelection();
     const [isLoading, setIsLoading] = useState(false);
     const [step, setStep] = useState(1); // 1: Form, 2: Scenario Ready, 3: Images Ready, 4: Plan Review, 5: Result
     const [error, setError] = useState('');
@@ -12,7 +14,7 @@ const GenerateImage = () => {
     // Form State
     const [formData, setFormData] = useState({
         topic: '',
-        style: 'cinematic',
+        style: 'pastel-cartoon',
         target_audience: 'General Audience',
         duration: 30,
         llm_provider: 'openai'
@@ -52,14 +54,20 @@ const GenerateImage = () => {
         fetchSongs();
     }, []);
 
+    useEffect(() => {
+        if (selection.song) {
+            setFormData(prev => ({
+                ...prev,
+                topic: `${selection.song.title}: ${selection.song.text.substring(0, 200)}`
+            }));
+        }
+    }, [selection.song]);
+
     const handleSongSelect = (e) => {
         const songId = e.target.value;
         const selectedSong = songs.find(s => s._id === songId || s.id === songId);
         if (selectedSong) {
-            setFormData(prev => ({
-                ...prev,
-                topic: `${selectedSong.title}: ${selectedSong.text.substring(0, 200)}`
-            }));
+            toggleSongSelection(selectedSong);
             setShowSongSelect(false);
         }
     };
@@ -204,7 +212,7 @@ const GenerateImage = () => {
                     <select
                         onChange={handleSongSelect}
                         style={styles.songSelect}
-                        defaultValue=""
+                        value={selection.song ? (selection.song._id || selection.song.id) : ""}
                         aria-label="Select a saved song"
                     >
                         <option value="" disabled>-- Pick a song --</option>
@@ -235,10 +243,12 @@ const GenerateImage = () => {
                         onChange={handleInputChange}
                         style={styles.select}
                     >
-                        <option value="cinematic">Cinematic</option>
-                        <option value="anime">Anime</option>
-                        <option value="3d-render">3D Render</option>
-                        <option value="sketch">Sketch</option>
+                        <option value="pastel-cartoon">Pastel Cartoon</option>
+                        <option value="watercolor-storybook">Watercolor Storybook</option>
+                        <option value="kawaii-cartoon">Kawaii Cartoon</option>
+                        <option value="crayon-drawing">Crayon Drawing</option>
+                        <option value="soft-3d-cartoon">Soft 3D Cartoon</option>
+                        <option value="paper-cut">Paper Cut Animation</option>
                     </select>
                 </div>
                 <div style={styles.inputGroup}>
