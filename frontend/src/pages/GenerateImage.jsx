@@ -338,6 +338,22 @@ const GenerateImage = () => {
         </div>
     );
 
+    const renderProgressBar = () => (
+        <div style={styles.progress} role="progressbar" aria-valuenow={step} aria-valuemin={1} aria-valuemax={5} aria-label="Generation Progress">
+            {[1, 2, 3, 4, 5].map((num) => (
+                <React.Fragment key={num}>
+                    <div
+                        style={{...styles.dot, ...(num === step ? styles.dotActive : {}), ...(num < step ? styles.dotDone : {})}}
+                        aria-current={num === step ? "step" : undefined}
+                    >
+                        {num < step ? '✓' : num}
+                    </div>
+                    {num < 5 && <div style={{...styles.line, ...(num < step ? styles.lineDone : {})}} />}
+                </React.Fragment>
+            ))}
+        </div>
+    );
+
     return (
         <div style={styles.container}>
             <div style={styles.content}>
@@ -350,6 +366,8 @@ const GenerateImage = () => {
                     {step === 4 && "Review the Agent's plan before execution."}
                     {step === 5 && "Here is your generated video content."}
                 </p>
+
+                {renderProgressBar()}
 
                 {error && <div style={styles.error}>{error}</div>}
 
@@ -587,6 +605,46 @@ const styles = {
         fontSize: '0.9rem',
         backgroundColor: '#eff6ff',
         marginBottom: '0.5rem',
+    },
+    progress: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: '2.5rem',
+        padding: '0 1rem',
+    },
+    dot: {
+        width: '2rem',
+        height: '2rem',
+        borderRadius: '50%',
+        backgroundColor: '#f1f5f9',
+        color: '#94a3b8',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: '0.875rem',
+        fontWeight: '600',
+        zIndex: 1,
+        transition: 'all 0.3s ease',
+    },
+    dotActive: {
+        backgroundColor: '#3b82f6',
+        color: 'white',
+        boxShadow: '0 0 0 4px rgba(59, 130, 246, 0.2)',
+    },
+    dotDone: {
+        backgroundColor: '#10b981',
+        color: 'white',
+    },
+    line: {
+        flex: 1,
+        height: '2px',
+        backgroundColor: '#e2e8f0',
+        margin: '0 0.5rem',
+        transition: 'background-color 0.3s ease',
+    },
+    lineDone: {
+        backgroundColor: '#10b981',
     }
 };
 
