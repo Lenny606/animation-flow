@@ -13,7 +13,11 @@ const Home = () => {
                 <div style={styles.buttonGroup}>
                     <button
                         onClick={() => navigate('/generate')}
-                        style={styles.ctaButton}
+                        style={{
+                            ...styles.ctaButton,
+                            ...(true ? styles.disabledCta : {})
+                        }}
+                        disabled={true}
                     >
                         Start Generation
                     </button>
@@ -117,6 +121,12 @@ const styles = {
         cursor: 'pointer',
         boxShadow: '0 4px 6px -1px rgba(59, 130, 246, 0.3)',
         transition: 'transform 0.2s, background-color 0.2s',
+    },
+    disabledCta: {
+        backgroundColor: '#94a3b8',
+        boxShadow: 'none',
+        cursor: 'not-allowed',
+        transform: 'none',
     },
     modalContent: {
         display: 'flex',

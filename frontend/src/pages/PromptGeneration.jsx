@@ -167,21 +167,33 @@ const PromptGeneration = () => {
                                         </div>
                                     ))}
                                 </div>
+                                <div style={styles.nextButtonContainer}>
+                                    <button style={styles.nextButton}>
+                                        Next Stage ➔
+                                    </button>
+                                </div>
                             </div>
                         );
                     }
 
                     return (
-                        <div style={styles.result}>
-                            <h3 style={styles.resultTitle}>Generated Prompt:</h3>
-                            <p style={styles.resultText}>{generatedPrompt}</p>
-                            <button 
-                                style={styles.copyBtn}
-                                onClick={() => navigator.clipboard.writeText(generatedPrompt)}
-                            >
-                                Copy to Clipboard
-                            </button>
-                        </div>
+                        <>
+                            <div style={styles.result}>
+                                <h3 style={styles.resultTitle}>Generated Prompt:</h3>
+                                <p style={styles.resultText}>{generatedPrompt}</p>
+                                <button 
+                                    style={styles.copyBtn}
+                                    onClick={() => navigator.clipboard.writeText(generatedPrompt)}
+                                >
+                                    Copy to Clipboard
+                                </button>
+                            </div>
+                            <div style={styles.nextButtonContainer}>
+                                <button style={styles.nextButton}>
+                                    Next Stage ➔
+                                </button>
+                            </div>
+                        </>
                     );
                 })()}
             </div>
@@ -412,6 +424,28 @@ const styles = {
         color: '#1e293b',
         margin: 0,
         fontStyle: 'italic',
+    },
+    nextButtonContainer: {
+        marginTop: '3.5rem',
+        display: 'flex',
+        justifyContent: 'center',
+        padding: '2rem 0',
+        borderTop: '1px solid #f1f5f9',
+    },
+    nextButton: {
+        backgroundColor: '#3b82f6',
+        color: 'white',
+        border: 'none',
+        borderRadius: '12px',
+        padding: '1rem 3.5rem',
+        fontSize: '1.1rem',
+        fontWeight: '700',
+        cursor: 'pointer',
+        boxShadow: '0 10px 15px -3px rgba(59, 130, 246, 0.4)',
+        transition: 'all 0.2s',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '0.75rem',
     }
 };
 
