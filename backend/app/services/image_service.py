@@ -68,6 +68,13 @@ class GeminiImageProvider(ImageProvider):
                     return "https://placehold.co/1024x1024/ef4444/white?text=Generation+Failed"
                 
                 image_data = response.generated_images[0].image
+            # Create static directory if it doesn't exist
+            static_dir = Path("static/generated_images")
+            static_dir.mkdir(parents=True, exist_ok=True)
+            
+            filename = f"{uuid.uuid4()}.png"
+            file_path = static_dir / filename
+            
             # image_data can be bytes or a PIL Image depending on the SDK behavior
             # According to docs, it's often a PIL Image or bytes.
             # Let's handle both.
@@ -82,6 +89,7 @@ class GeminiImageProvider(ImageProvider):
             
             # Use localhost in development, otherwise use BACKEND_URL
             base_url = "http://localhost:8000" if settings.ENVIRONMENT == "development" else settings.BACKEND_URL
+            logger.info(f"Gemini Environment: {settings.ENVIRONMENT}, base_url: {base_url}")
             return f"{base_url}/static/generated_images/{filename}"
             
         except Exception as e:
@@ -135,6 +143,7 @@ class OpenAIImageProvider(ImageProvider):
             
             # Use localhost in development, otherwise use BACKEND_URL
             base_url = "http://localhost:8000" if settings.ENVIRONMENT == "development" else settings.BACKEND_URL
+            logger.info(f"OpenAI Environment: {settings.ENVIRONMENT}, base_url: {base_url}")
             return f"{base_url}/static/generated_images/{filename}"
             
         except Exception as e:
