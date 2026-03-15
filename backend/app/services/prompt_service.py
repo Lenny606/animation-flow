@@ -36,9 +36,9 @@ class PromptService:
                     f"NUMBER OF SCENES: {image_count}"
                 ))
             ]
-            print(messages)
+            # print(messages)
             response = await self.llm.ainvoke(messages)
-            print(response)
+            # print(response)
             return response.content
         except Exception as e:
             logger.error(f"Error generating optimized prompt: {e}", exc_info=True)
