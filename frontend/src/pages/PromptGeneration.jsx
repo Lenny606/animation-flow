@@ -3,8 +3,19 @@ import { useSelection } from '../context/SelectionContext';
 
 const PromptGeneration = () => {
     const { selection, setStyleSelection, setImageCountSelection } = useSelection();
-    const [generatedPrompt, setGeneratedPrompt] = useState('');
+    const [generatedPrompt, setGeneratedPrompt] = useState(() => {
+        return localStorage.getItem('lastGeneratedPrompt') || '';
+    });
     const [isGenerating, setIsGenerating] = useState(false);
+    const [hoveredIdx, setHoveredIdx] = useState(null);
+
+    React.useEffect(() => {
+        if (generatedPrompt) {
+            localStorage.setItem('lastGeneratedPrompt', generatedPrompt);
+        } else {
+            localStorage.removeItem('lastGeneratedPrompt');
+        }
+    }, [generatedPrompt]);
 
     const stylesList = [
         { id: 'pastel-cartoon', name: 'Pastel Cartoon', prompt: 'pastel cartoon with soft gradients and thick outlines' },
@@ -102,18 +113,77 @@ const PromptGeneration = () => {
                     {!selection.song ? 'Please Select a Song First' : (isGenerating ? 'Analyzing...' : 'Generate Optimized Prompt ✨')}
                 </button>
 
-                {generatedPrompt && (
-                    <div style={styles.result}>
-                        <h3 style={styles.resultTitle}>Generated Prompt:</h3>
-                        <p style={styles.resultText}>{generatedPrompt}</p>
-                        <button 
-                            style={styles.copyBtn}
-                            onClick={() => navigator.clipboard.writeText(generatedPrompt)}
-                        >
-                            Copy to Clipboard
-                        </button>
-                    </div>
-                )}
+                {generatedPrompt && (() => {
+                    let parsedData = null;
+                    try {
+                        // Check if it's a JSON string (possibly wrapped in markdown)
+                        let cleanJson = generatedPrompt.trim();
+                        if (cleanJson.startsWith('```json')) {
+                            cleanJson = cleanJson.replace(/```json|```/g, '').trim();
+                        } else if (cleanJson.startsWith('```')) {
+                            cleanJson = cleanJson.replace(/```/g, '').trim();
+                        }
+                        parsedData = JSON.parse(cleanJson);
+                    } catch (e) {
+                        parsedData = null;
+                    }
+
+                    if (parsedData && parsedData.image_prompts) {
+                        return (
+                            <div style={styles.resultContainer}>
+                                <div style={styles.resultHeader}>
+                                    <div>
+                                        <h3 style={styles.resultMainTitle}>{parsedData.title || selection.song.title}</h3>
+                                        <p style={styles.resultSubtitle}>Visual Style: <span style={styles.styleBadge}>{parsedData.style || selection.style}</span></p>
+                                    </div>
+                                    <button 
+                                        style={styles.copyAllBtn}
+                                        onClick={() => navigator.clipboard.writeText(generatedPrompt)}
+                                    >
+                                        Copy JSON
+                                    </button>
+                                </div>
+                                <div style={styles.scenesGrid}>
+                                    {parsedData.image_prompts.map((scene, idx) => (
+                                        <div 
+                                            key={idx} 
+                                            style={{
+                                                ...styles.sceneCard,
+                                                ...(hoveredIdx === idx ? styles.sceneCardHover : {})
+                                            }}
+                                            onMouseEnter={() => setHoveredIdx(idx)}
+                                            onMouseLeave={() => setHoveredIdx(null)}
+                                        >
+                                            <div style={styles.sceneHeader}>
+                                                <span style={styles.sceneNumber}>Scene {scene.scene || idx + 1}</span>
+                                                <button 
+                                                    style={styles.inlineCopyBtn}
+                                                    onClick={() => navigator.clipboard.writeText(scene.prompt)}
+                                                >
+                                                    Copy Prompt
+                                                </button>
+                                            </div>
+                                            <p style={styles.scenePrompt}>{scene.prompt}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        );
+                    }
+
+                    return (
+                        <div style={styles.result}>
+                            <h3 style={styles.resultTitle}>Generated Prompt:</h3>
+                            <p style={styles.resultText}>{generatedPrompt}</p>
+                            <button 
+                                style={styles.copyBtn}
+                                onClick={() => navigator.clipboard.writeText(generatedPrompt)}
+                            >
+                                Copy to Clipboard
+                            </button>
+                        </div>
+                    );
+                })()}
             </div>
         </div>
     );
@@ -251,6 +321,97 @@ const styles = {
         fontSize: '0.875rem',
         fontWeight: '600',
         cursor: 'pointer',
+    },
+    resultContainer: {
+        marginTop: '2rem',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '1.5rem',
+    },
+    resultHeader: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        borderBottom: '1px solid #f1f5f9',
+        paddingBottom: '1rem',
+    },
+    resultMainTitle: {
+        fontSize: '1.25rem',
+        fontWeight: '800',
+        color: '#0f172a',
+        marginBottom: '0.25rem',
+    },
+    resultSubtitle: {
+        fontSize: '0.875rem',
+        color: '#64748b',
+    },
+    styleBadge: {
+        display: 'inline-block',
+        padding: '2px 8px',
+        backgroundColor: '#f1f5f9',
+        borderRadius: '6px',
+        color: '#334155',
+        fontWeight: '600',
+    },
+    copyAllBtn: {
+        padding: '0.5rem 1rem',
+        backgroundColor: '#f8fafc',
+        border: '1px solid #e2e8f0',
+        borderRadius: '8px',
+        color: '#64748b',
+        fontSize: '0.75rem',
+        fontWeight: '600',
+        cursor: 'pointer',
+    },
+    scenesGrid: {
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+        gap: '1rem',
+    },
+    sceneCard: {
+        backgroundColor: '#f8fafc',
+        borderRadius: '16px',
+        padding: '1.25rem',
+        border: '1px solid #e2e8f0',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '1rem',
+        transition: 'transform 0.2s, box-shadow 0.2s',
+        cursor: 'default',
+    },
+    sceneCardHover: {
+        transform: 'translateY(-4px)',
+        boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+    },
+    sceneHeader: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    sceneNumber: {
+        backgroundColor: '#3b82f6',
+        color: 'white',
+        fontSize: '0.75rem',
+        fontWeight: '800',
+        padding: '2px 10px',
+        borderRadius: '20px',
+        textTransform: 'uppercase',
+    },
+    inlineCopyBtn: {
+        backgroundColor: 'transparent',
+        border: 'none',
+        color: '#3b82f6',
+        fontSize: '0.75rem',
+        fontWeight: '700',
+        cursor: 'pointer',
+        padding: '0',
+    },
+    scenePrompt: {
+        fontSize: '0.9rem',
+        lineHeight: '1.5',
+        color: '#1e293b',
+        margin: 0,
+        fontStyle: 'italic',
     }
 };
 
