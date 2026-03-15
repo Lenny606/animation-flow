@@ -8,10 +8,9 @@ def get_llm():
     """
     Initialize and return the Google Gemini LLM.
     """
-    api_key = settings.GEMINI_API_KEY or settings.GOOGLE_API_KEY
-    
-    if not api_key:
-        logger.warning("Neither GEMINI_API_KEY nor GOOGLE_API_KEY is set. Gemini LLM may not function correctly.")
+    if not settings.GOOGLE_API_KEY:
+        logger.error("GOOGLE_API_KEY is not set.")
+        raise ValueError("GOOGLE_API_KEY is not set. Gemini LLM cannot be initialized.")
     
     return ChatGoogleGenerativeAI(
         model=settings.GEMINI_MODEL_NAME,
