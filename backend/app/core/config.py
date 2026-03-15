@@ -34,6 +34,7 @@ class Settings(BaseSettings):
     GEMINI_API_KEY: str = ""
     OPENAI_MODEL_NAME: str = "gpt-3.5-turbo"
     GEMINI_MODEL_NAME: str = "gemini-2.5-flash"
+    IMAGEN_MODEL_NAME: str = "imagen-4.0-generate-001"
     LOCAL_LLM_BASE_URL: str = "http://localhost:11434/v1"
     LOCAL_LLM_API_KEY: str = "lm-studio"
     LOCAL_LLM_MODEL_NAME: str = "llama2"

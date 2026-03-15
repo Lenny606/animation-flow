@@ -94,7 +94,15 @@ const ImageGeneration = () => {
                     >
                         <div style={styles.imagePreview}>
                             {imageUrls[idx] ? (
-                                <img src={imageUrls[idx]} alt={`Scene ${idx + 1}`} style={styles.sceneImage} />
+                                <img 
+                                    src={imageUrls[idx]} 
+                                    alt={`Scene ${idx + 1}`} 
+                                    style={styles.sceneImage}
+                                    onError={(e) => {
+                                        console.error("Image load failed", e);
+                                        // Optionally remove from state if it's a persistent error
+                                    }}
+                                />
                             ) : (
                                 <div style={styles.placeholder}>
                                     {isGenerating[idx] ? 'Generating Visual... ✨' : 'No image yet'}

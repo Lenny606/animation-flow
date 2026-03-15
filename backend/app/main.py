@@ -19,6 +19,8 @@ from app.core.rate_limit import limiter
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from contextlib import asynccontextmanager
+from fastapi.staticfiles import StaticFiles
+from pathlib import Path
 
 settings = get_settings()
 
@@ -79,6 +81,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Ensure static directory exists
+static_path = Path("static")
+static_path.mkdir(exist_ok=True)
+(static_path / "generated_images").mkdir(exist_ok=True, parents=True)
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 app.add_exception_handler(HTTPException, http_error_handler)
 app.add_exception_handler(BaseAPIException, api_exception_handler)
