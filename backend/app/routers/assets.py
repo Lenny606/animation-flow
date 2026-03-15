@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, BackgroundTasks, Depends, status
 from pydantic import BaseModel, Field
 from typing import List, Optional
+from app.core.logging import logger
 
 from app.models.scenario import Scenario
 from app.models.asset import ImageAsset, VideoAsset
@@ -33,16 +34,32 @@ class ImageGenRequest(BaseModel):
     }])
     llm_provider: str = Field("openai", description="The image generation provider to use", examples=["openai", "stabilityai"])
 
+from app.services.image_service import ImageService, get_image_service
+
+class SingleImageRequest(BaseModel):
+    prompt: str
+
+@router.post("/generate-single", summary="Generate a single image asset")
+async def generate_single_asset(
+    request: SingleImageRequest,
+    image_service: ImageService = Depends(get_image_service)
+):
+    """
+    Generates a single image asset based on a prompt.
+    """
+    try:
+        image_url = await image_service.generate_single_image(request.prompt)
+        return {"image_url": image_url, "status": "ok"}
+    except Exception as e:
+        logger.error(f"Error generating single image: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @router.post("/generate_from_scenario", response_model=List[ImageAsset], summary="Generate assets for a scenario", description="Triggers the Image Agent to generate image assets for each scene in a given scenario.")
 async def generate_assets(
     request: ImageGenRequest,
     image_repo: ImageAssetRepository = Depends(get_image_asset_repository)
 ):
-    """
-    Triggers the Image Agent to generate assets for a given scenario.
-    Saves the generated assets to the database.
-    """
-    raise HTTPException(status_code=501, detail="AI Agent logic has been removed. Not Implemented.")
+    pass
 
 @router.get("/scenario/{scenario_id}/images", response_model=List[ImageAsset])
 async def get_scenario_images(

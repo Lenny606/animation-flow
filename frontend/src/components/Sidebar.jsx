@@ -32,6 +32,13 @@ const Sidebar = () => {
                     <span className="nav-icon">✍️</span>
                     Prompt Generation
                 </NavLink>
+                <NavLink
+                    to="/image-generation"
+                    className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}
+                >
+                    <span className="nav-icon">🖼️</span>
+                    Image Generation
+                </NavLink>
             </nav>
         </aside>
     );

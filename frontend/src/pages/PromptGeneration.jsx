@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useSelection } from '../context/SelectionContext';
 
 const SceneCard = ({ idx, scene, hoveredIdx, setHoveredIdx, onRegenerate, isGlobalGenerating }) => {
@@ -68,6 +69,7 @@ const PromptGeneration = () => {
     });
     const [isGenerating, setIsGenerating] = useState(false);
     const [hoveredIdx, setHoveredIdx] = useState(null);
+    const navigate = useNavigate();
 
     React.useEffect(() => {
         if (generatedPrompt) {
@@ -247,7 +249,10 @@ const PromptGeneration = () => {
                                     ))}
                                 </div>
                                 <div style={styles.nextButtonContainer}>
-                                    <button style={styles.nextButton}>
+                                    <button 
+                                        style={styles.nextButton}
+                                        onClick={() => navigate('/image-generation')}
+                                    >
                                         Next Stage ➔
                                     </button>
                                 </div>
@@ -268,7 +273,10 @@ const PromptGeneration = () => {
                                 </button>
                             </div>
                             <div style={styles.nextButtonContainer}>
-                                <button style={styles.nextButton}>
+                                <button 
+                                    style={styles.nextButton}
+                                    onClick={() => navigate('/image-generation')}
+                                >
                                     Next Stage ➔
                                 </button>
                             </div>

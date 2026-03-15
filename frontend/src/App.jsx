@@ -5,6 +5,7 @@ import Home from './pages/Home';
 import GenerateImage from './pages/GenerateImage';
 import Songs from './pages/Songs';
 import PromptGeneration from './pages/PromptGeneration';
+import ImageGeneration from './pages/ImageGeneration';
 import MainLayout from './components/MainLayout';
 import './App.css';
 
@@ -19,6 +20,7 @@ function App() {
           <Route path="/home" element={<MainLayout><Home /></MainLayout>} />
           <Route path="/songs" element={<MainLayout><Songs /></MainLayout>} />
           <Route path="/prompts" element={<MainLayout><PromptGeneration /></MainLayout>} />
+          <Route path="/image-generation" element={<MainLayout><ImageGeneration /></MainLayout>} />
           <Route path="/generate" element={<MainLayout><GenerateImage /></MainLayout>} />
           <Route path="/" element={<Navigate to={isAuthDisabled ? "/home" : "/login"} replace />} />
         </Routes>
