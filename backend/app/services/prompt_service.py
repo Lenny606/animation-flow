@@ -21,28 +21,58 @@ class PromptService:
             logger.error(f"Error loading system prompt from {prompt_path}: {e}")
             self.system_prompt = "You are an AI assistant."
 
-    async def generate_optimized_prompt(self, song_title: str, song_text: str, style: str, image_count: int = 4) -> str:
+    async def generate_optimized_prompt(
+        self, 
+        song_title: str, 
+        song_text: str, 
+        style: str, 
+        image_count: int = 4, 
+        feedback: str = None, 
+        scene_index: int = None, 
+        current_prompts: list[dict] = None
+    ) -> str:
         """
         Uses LLM to optimize the user's input into a better prompt.
+        Supports iterative refinement with feedback and history.
         """
         try:
-            messages = [
-                SystemMessage(content=self.system_prompt),
-                HumanMessage(content=(
+            if feedback:
+                history_context = ""
+                if current_prompts:
+                    history_context = f"CURRENT PROMPTS:\n{current_prompts}\n\n"
+                
+                refinement_instruction = f"USER FEEDBACK: {feedback}\n"
+                if scene_index is not None:
+                    refinement_instruction += f"ACTION: Please specifically refine Scene {scene_index + 1} based on this feedback, while ensuring it still fits the overall sequence.\n"
+                else:
+                    refinement_instruction += "ACTION: Please refine all scenes based on this feedback.\n"
+
+                human_content = (
+                    f"Refine the image prompts for:\n"
+                    f"SONG TITLE: {song_title}\n"
+                    f"SONG TEXT/LYRICS:\n{song_text}\n"
+                    f"DESIRED STYLE: {style}\n\n"
+                    f"{history_context}"
+                    f"{refinement_instruction}"
+                    f"IMPORTANT: Return the FULL JSON with all scenes updated as needed."
+                )
+            else:
+                human_content = (
                     f"Please generate the image prompts based on this storage/song data:\n\n"
                     f"SONG TITLE: {song_title}\n"
                     f"SONG TEXT/LYRICS:\n{song_text}\n\n"
                     f"DESIRED STYLE: {style}\n"
                     f"NUMBER OF SCENES: {image_count}"
-                ))
+                )
+
+            messages = [
+                SystemMessage(content=self.system_prompt),
+                HumanMessage(content=human_content)
             ]
-            # print(messages)
             response = await self.llm.ainvoke(messages)
-            # print(response)
             return response.content
         except Exception as e:
             logger.error(f"Error generating optimized prompt: {e}", exc_info=True)
-            # Fallback to original text if AI fails
             return song_text
 
 def get_prompt_service():

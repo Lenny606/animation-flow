@@ -9,6 +9,9 @@ class PromptPayload(BaseModel):
     song_text: str
     style: str
     image_count: int = 4
+    feedback: str = None
+    scene_index: int = None
+    current_prompts: list[dict] = None
 
 @router.post("/generate-prompt")
 async def generate_prompt(
@@ -19,7 +22,10 @@ async def generate_prompt(
         payload.song_title, 
         payload.song_text, 
         payload.style,
-        payload.image_count
+        payload.image_count,
+        feedback=payload.feedback,
+        scene_index=payload.scene_index,
+        current_prompts=payload.current_prompts
     )
     return {
         "song_title": payload.song_title,

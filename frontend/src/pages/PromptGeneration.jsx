@@ -1,6 +1,66 @@
 import React, { useState } from 'react';
 import { useSelection } from '../context/SelectionContext';
 
+const SceneCard = ({ idx, scene, hoveredIdx, setHoveredIdx, onRegenerate, isGlobalGenerating }) => {
+    const [feedback, setFeedback] = useState('');
+    const [isRegenerating, setIsRegenerating] = useState(false);
+
+    const handleRefine = async () => {
+        if (!feedback.trim()) return;
+        setIsRegenerating(true);
+        try {
+            await onRegenerate(feedback);
+            setFeedback('');
+        } finally {
+            setIsRegenerating(false);
+        }
+    };
+
+    return (
+        <div 
+            style={{
+                ...styles.sceneCard,
+                ...(hoveredIdx === idx ? styles.sceneCardHover : {})
+            }}
+            onMouseEnter={() => setHoveredIdx(idx)}
+            onMouseLeave={() => setHoveredIdx(null)}
+        >
+            <div style={styles.sceneHeader}>
+                <span style={styles.sceneNumber}>Scene {scene.scene || idx + 1}</span>
+                <button 
+                    style={styles.inlineCopyBtn}
+                    onClick={() => navigator.clipboard.writeText(scene.prompt)}
+                >
+                    Copy
+                </button>
+            </div>
+            <p style={styles.scenePrompt}>{scene.prompt}</p>
+            
+            <div style={styles.feedbackSection}>
+                <input 
+                    type="text" 
+                    placeholder="Add feedback..."
+                    style={styles.feedbackInput}
+                    value={feedback}
+                    onChange={(e) => setFeedback(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleRefine()}
+                    disabled={isRegenerating || isGlobalGenerating}
+                />
+                <button 
+                    style={{
+                        ...styles.refineBtn,
+                        ...(isRegenerating || isGlobalGenerating || !feedback.trim() ? styles.disabledRefineBtn : {})
+                    }}
+                    onClick={handleRefine}
+                    disabled={isRegenerating || isGlobalGenerating || !feedback.trim()}
+                >
+                    {isRegenerating ? '...' : '✨'}
+                </button>
+            </div>
+        </div>
+    );
+};
+
 const PromptGeneration = () => {
     const { selection, setStyleSelection, setImageCountSelection } = useSelection();
     const [generatedPrompt, setGeneratedPrompt] = useState(() => {
@@ -53,6 +113,36 @@ const PromptGeneration = () => {
             // Fallback for UI if API fails
             const selectedStyle = stylesList.find(s => s.id === selection.style);
             setGeneratedPrompt(`Based on "${selection.song.title}": ${selectedStyle?.prompt || 'visual'}. Ethereal atmosphere.`);
+        } finally {
+            setIsGenerating(false);
+        }
+    };
+
+    const handleRegenerateScene = async (sceneIdx, feedback, currentPrompts) => {
+        setIsGenerating(true);
+        try {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/prompts/generate-prompt`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    song_title: selection.song.title,
+                    song_text: selection.song.text,
+                    style: selection.style || 'pastel-cartoon',
+                    image_count: selection.imageCount || 4,
+                    feedback: feedback,
+                    scene_index: sceneIdx,
+                    current_prompts: currentPrompts
+                }),
+            });
+
+            if (!response.ok) throw new Error('Failed to regenerate prompt');
+            
+            const data = await response.json();
+            setGeneratedPrompt(data.optimized_text);
+        } catch (error) {
+            console.error('Error regenerating prompt:', error);
         } finally {
             setIsGenerating(false);
         }
@@ -145,26 +235,15 @@ const PromptGeneration = () => {
                                 </div>
                                 <div style={styles.scenesGrid}>
                                     {parsedData.image_prompts.map((scene, idx) => (
-                                        <div 
-                                            key={idx} 
-                                            style={{
-                                                ...styles.sceneCard,
-                                                ...(hoveredIdx === idx ? styles.sceneCardHover : {})
-                                            }}
-                                            onMouseEnter={() => setHoveredIdx(idx)}
-                                            onMouseLeave={() => setHoveredIdx(null)}
-                                        >
-                                            <div style={styles.sceneHeader}>
-                                                <span style={styles.sceneNumber}>Scene {scene.scene || idx + 1}</span>
-                                                <button 
-                                                    style={styles.inlineCopyBtn}
-                                                    onClick={() => navigator.clipboard.writeText(scene.prompt)}
-                                                >
-                                                    Copy Prompt
-                                                </button>
-                                            </div>
-                                            <p style={styles.scenePrompt}>{scene.prompt}</p>
-                                        </div>
+                                        <SceneCard 
+                                            key={idx}
+                                            idx={idx}
+                                            scene={scene}
+                                            hoveredIdx={hoveredIdx}
+                                            setHoveredIdx={setHoveredIdx}
+                                            onRegenerate={(feedback) => handleRegenerateScene(idx, feedback, parsedData.image_prompts)}
+                                            isGlobalGenerating={isGenerating}
+                                        />
                                     ))}
                                 </div>
                                 <div style={styles.nextButtonContainer}>
@@ -446,6 +525,41 @@ const styles = {
         display: 'flex',
         alignItems: 'center',
         gap: '0.75rem',
+    },
+    feedbackSection: {
+        display: 'flex',
+        gap: '0.5rem',
+        marginTop: 'auto',
+        paddingTop: '0.75rem',
+        borderTop: '1px solid #f1f5f9',
+    },
+    feedbackInput: {
+        flex: 1,
+        padding: '0.4rem 0.75rem',
+        borderRadius: '8px',
+        border: '1px solid #e2e8f0',
+        fontSize: '0.8rem',
+        outline: 'none',
+        backgroundColor: 'white',
+    },
+    refineBtn: {
+        backgroundColor: '#0f172a',
+        color: 'white',
+        border: 'none',
+        borderRadius: '8px',
+        width: '32px',
+        height: '32px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        cursor: 'pointer',
+        fontSize: '0.9rem',
+        transition: 'all 0.2s',
+    },
+    disabledRefineBtn: {
+        backgroundColor: '#e2e8f0',
+        color: '#94a3b8',
+        cursor: 'not-allowed',
     }
 };
 
