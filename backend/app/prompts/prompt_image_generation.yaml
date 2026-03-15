@@ -9,20 +9,20 @@ template_text: |
 
   INPUTS
   ------
-  Title: {title}
+  Title: [Provided in Human Message]
 
   Text:
-  {text}
+  [Provided in Human Message]
 
   Illustration Style:
-  {style}
+  [Provided in Human Message]
 
-  Number of Images to Generate: {image_count}
+  Number of Images to Generate: [Provided in Human Message]
 
 
   GOAL
   -----
-  Generate exactly {image_count} image prompts describing scenes from the story.
+  Generate exactly the requested number of image prompts describing scenes from the story.
 
   The prompts should:
   - be visually rich
@@ -36,7 +36,7 @@ template_text: |
   -------
   1. Read the text and understand the narrative.
   2. Identify the most important scenes in the story.
-  3. Split the story into exactly {image_count} scenes.
+  3. Split the story into exactly the requested number of scenes.
   4. Each scene should represent a clear visual moment.
   5. Maintain visual consistency between prompts (characters, colors, mood).
 
@@ -51,7 +51,7 @@ template_text: |
   - action happening
   - mood
   - children's book friendly composition
-  - illustration style: {style}
+  - illustration style: [as provided]
 
   Prompts must be:
   - colorful
@@ -67,9 +67,9 @@ template_text: |
   Return the result as structured JSON.
 
   {
-    "title": "{title}",
-    "style": "{style}",
-    "image_count": {image_count},
+    "title": "...",
+    "style": "...",
+    "image_count": 0,
     "image_prompts": [
       {
         "scene": 1,
@@ -84,7 +84,7 @@ template_text: |
 
   IMPORTANT RULES
   ----------------
-  - Generate EXACTLY {image_count} prompts.
+  - Generate EXACTLY the requested number of prompts.
   - Ensure scenes follow the narrative order.
   - Avoid abstract descriptions that cannot be illustrated.
   - Focus on visual storytelling.

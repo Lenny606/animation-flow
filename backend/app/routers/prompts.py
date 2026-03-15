@@ -8,6 +8,7 @@ class PromptPayload(BaseModel):
     song_title: str
     song_text: str
     style: str
+    image_count: int = 4
 
 @router.post("/generate-prompt")
 async def generate_prompt(
@@ -17,7 +18,8 @@ async def generate_prompt(
     optimized_text = await prompt_service.generate_optimized_prompt(
         payload.song_title, 
         payload.song_text, 
-        payload.style
+        payload.style,
+        payload.image_count
     )
     return {
         "song_title": payload.song_title,

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useSelection } from '../context/SelectionContext';
 
 const PromptGeneration = () => {
-    const { selection, setStyleSelection } = useSelection();
+    const { selection, setStyleSelection, setImageCountSelection } = useSelection();
     const [generatedPrompt, setGeneratedPrompt] = useState('');
     const [isGenerating, setIsGenerating] = useState(false);
 
@@ -28,7 +28,8 @@ const PromptGeneration = () => {
                 body: JSON.stringify({
                     song_title: selection.song.title,
                     song_text: selection.song.text,
-                    style: selection.style || 'pastel-cartoon'
+                    style: selection.style || 'pastel-cartoon',
+                    image_count: selection.imageCount || 4
                 }),
             });
 
@@ -60,24 +61,45 @@ const PromptGeneration = () => {
             )}
 
             <div style={styles.card}>
-                <div style={styles.options}>
-                    {stylesList.map(style => (
-                        <button 
-                            key={style.id}
-                            style={{...styles.optionBtn, ...(selection.style === style.id ? styles.activeOption : {})}}
-                            onClick={() => setStyleSelection(style.id)}
+                <div style={styles.controlsRow}>
+                    <div style={styles.controlItem}>
+                        <label style={styles.label}>Visual Style</label>
+                        <div style={styles.options}>
+                            {stylesList.map(style => (
+                                <button 
+                                    key={style.id}
+                                    style={{...styles.optionBtn, ...(selection.style === style.id ? styles.activeOption : {})}}
+                                    onClick={() => setStyleSelection(style.id)}
+                                >
+                                    {style.name}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div style={styles.controlItem}>
+                        <label style={styles.label}>Number of Scenes</label>
+                        <select 
+                            style={styles.select}
+                            value={selection.imageCount || 4}
+                            onChange={(e) => setImageCountSelection(parseInt(e.target.value))}
                         >
-                            {style.name}
-                        </button>
-                    ))}
+                            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => (
+                                <option key={n} value={n}>{n} {n === 1 ? 'Scene' : 'Scenes'}</option>
+                            ))}
+                        </select>
+                    </div>
                 </div>
 
                 <button 
-                    style={styles.generateBtn} 
+                    style={{
+                        ...styles.generateBtn, 
+                        ...(!selection.song ? styles.disabledBtn : {})
+                    }} 
                     onClick={handleGenerate}
-                    disabled={isGenerating}
+                    disabled={isGenerating || !selection.song}
                 >
-                    {isGenerating ? 'Analyzing...' : 'Generate Optimized Prompt ✨'}
+                    {!selection.song ? 'Please Select a Song First' : (isGenerating ? 'Analyzing...' : 'Generate Optimized Prompt ✨')}
                 </button>
 
                 {generatedPrompt && (
@@ -136,8 +158,38 @@ const styles = {
     },
     options: {
         display: 'flex',
-        gap: '1rem',
+        gap: '0.75rem',
         flexWrap: 'wrap',
+    },
+    controlsRow: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '2rem',
+    },
+    controlItem: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '1rem',
+    },
+    label: {
+        fontSize: '0.9rem',
+        fontWeight: '700',
+        color: '#475569',
+        textTransform: 'uppercase',
+        letterSpacing: '0.05em',
+    },
+    select: {
+        padding: '0.75rem 1rem',
+        borderRadius: '12px',
+        border: '1px solid #e2e8f0',
+        backgroundColor: '#f8fafc',
+        color: '#0f172a',
+        fontSize: '1rem',
+        fontWeight: '600',
+        cursor: 'pointer',
+        width: 'fit-content',
+        minWidth: '150px',
+        outline: 'none',
     },
     optionBtn: {
         padding: '0.6rem 1.2rem',
@@ -165,6 +217,11 @@ const styles = {
         fontWeight: '700',
         cursor: 'pointer',
         transition: 'background-color 0.2s',
+    },
+    disabledBtn: {
+        backgroundColor: '#94a3b8',
+        cursor: 'not-allowed',
+        opacity: 0.7,
     },
     result: {
         marginTop: '1rem',
