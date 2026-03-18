@@ -5,3 +5,7 @@
 ## 2024-06-25 - Disabled States with Inline Styles
 **Learning:** Because this app relies on React inline style objects instead of CSS classes, standard CSS pseudo-classes like `:disabled` do not work to visually update elements when they are disabled. Adding `disabled={true}` to an element will functionally disable it, but without a visual change, users may not realize it's disabled.
 **Action:** Always implement a conditional style object merge (e.g., `style={{ ...styles.button, ...(isDisabled ? styles.buttonDisabled : {}) }}`) alongside the `disabled` attribute to ensure proper visual feedback (reduced opacity, changed background, `cursor: 'not-allowed'`).
+
+## $(date +%Y-%m-%d) - Progress Indicators and ARIA
+**Learning:** Multi-step flows (like the 5-step GenerateImage process) need visual structure. Implementing a progress indicator with CSS is easy, but without the right structural ARIA attributes (\`role="progressbar"\`, \`aria-valuenow\`, \`aria-valuemin\`, \`aria-valuemax\`, \`aria-current\`), screen reader users won't understand their current position in the sequence.
+**Action:** Always wrap visual progress steps in a \`progressbar\` container with value attributes, and mark the active step with \`aria-current="step"\`. Use inline styles with conditional rendering (e.g. \`...(s === step ? styles.stepActive : {})\`) to reflect active/completed states using standard app colors (\`#3b82f6\`, \`#10b981\`).

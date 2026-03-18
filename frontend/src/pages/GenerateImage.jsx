@@ -343,6 +343,38 @@ const GenerateImage = () => {
             <div style={styles.content}>
                 <button onClick={() => navigate('/home')} style={styles.backButton}>← Back Home</button>
                 <h1 style={styles.title}>AI Generation Flow</h1>
+
+                {/* Progress Indicator */}
+                <div
+                    style={styles.progressContainer}
+                    role="progressbar"
+                    aria-valuenow={step}
+                    aria-valuemin="1"
+                    aria-valuemax="5"
+                    aria-label="Generation Progress"
+                >
+                    {[1, 2, 3, 4, 5].map((s) => (
+                        <div key={s} style={styles.stepWrapper}>
+                            <div
+                                style={{
+                                    ...styles.stepIndicator,
+                                    ...(s === step ? styles.stepActive : {}),
+                                    ...(s < step ? styles.stepCompleted : {}),
+                                }}
+                                aria-current={s === step ? "step" : undefined}
+                            >
+                                {s < step ? '✓' : s}
+                            </div>
+                            {s < 5 && (
+                                <div style={{
+                                    ...styles.stepConnector,
+                                    ...(s < step ? styles.connectorCompleted : {})
+                                }} />
+                            )}
+                        </div>
+                    ))}
+                </div>
+
                 <p style={styles.description}>
                     {step === 1 && "Start by describing your vision."}
                     {step === 2 && "The AI has planned your storyboard. Ready to generate?"}
@@ -364,6 +396,54 @@ const GenerateImage = () => {
 };
 
 const styles = {
+    progressContainer: {
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: '2rem',
+        width: '100%',
+    },
+    stepWrapper: {
+        display: 'flex',
+        alignItems: 'center',
+    },
+    stepIndicator: {
+        width: '32px',
+        height: '32px',
+        borderRadius: '50%',
+        backgroundColor: '#f1f5f9',
+        color: '#64748b',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        fontWeight: '600',
+        fontSize: '0.875rem',
+        border: '2px solid #e2e8f0',
+        transition: 'all 0.3s ease',
+        zIndex: 1,
+    },
+    stepActive: {
+        backgroundColor: '#3b82f6',
+        borderColor: '#3b82f6',
+        color: '#ffffff',
+        boxShadow: '0 0 0 4px rgba(59, 130, 246, 0.1)',
+    },
+    stepCompleted: {
+        backgroundColor: '#10b981',
+        borderColor: '#10b981',
+        color: '#ffffff',
+    },
+    stepConnector: {
+        height: '4px',
+        width: '40px',
+        backgroundColor: '#e2e8f0',
+        margin: '0 8px',
+        transition: 'background-color 0.3s ease',
+    },
+    connectorCompleted: {
+        backgroundColor: '#10b981',
+    },
+
     container: {
         minHeight: '100vh',
         backgroundColor: '#f8fafc',
