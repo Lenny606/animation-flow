@@ -338,11 +338,33 @@ const GenerateImage = () => {
         </div>
     );
 
+    const renderProgressBar = () => {
+        const steps = ["Prompt", "Storyboard", "Images", "Plan", "Result"];
+        return (
+            <div style={styles.progressContainer} role="progressbar" aria-label="Generation progress" aria-valuenow={step} aria-valuemin={1} aria-valuemax={5}>
+                {steps.map((label, i) => {
+                    const s = i + 1;
+                    return (
+                        <div key={label} style={styles.stepWrap}>
+                            <div style={{...styles.stepIndicator, ...(s === step ? styles.stepActive : {}), ...(s < step ? styles.stepCompleted : {})}} aria-current={s === step ? 'step' : undefined}>
+                                {s < step ? '✓' : s}
+                            </div>
+                            <span style={{...styles.stepLabel, ...(s === step ? styles.stepLabelActive : {})}}>{label}</span>
+                            {i < steps.length - 1 && <div style={{...styles.stepConnector, ...(s < step ? styles.stepConnectorCompleted : {})}} />}
+                        </div>
+                    );
+                })}
+            </div>
+        );
+    };
+
     return (
         <div style={styles.container}>
             <div style={styles.content}>
                 <button onClick={() => navigate('/home')} style={styles.backButton}>← Back Home</button>
                 <h1 style={styles.title}>AI Generation Flow</h1>
+                {renderProgressBar()}
+
                 <p style={styles.description}>
                     {step === 1 && "Start by describing your vision."}
                     {step === 2 && "The AI has planned your storyboard. Ready to generate?"}
@@ -587,7 +609,16 @@ const styles = {
         fontSize: '0.9rem',
         backgroundColor: '#eff6ff',
         marginBottom: '0.5rem',
-    }
+    },
+    progressContainer: { display: 'flex', justifyContent: 'space-between', marginBottom: '2rem', position: 'relative' },
+    stepWrap: { display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative', zIndex: 1, flex: 1 },
+    stepIndicator: { width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#f1f5f9', color: '#64748b', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '0.875rem', fontWeight: 'bold', marginBottom: '0.5rem', border: '2px solid #e2e8f0' },
+    stepActive: { backgroundColor: '#3b82f6', color: 'white', borderColor: '#3b82f6', boxShadow: '0 0 0 4px rgba(59,130,246,0.2)' },
+    stepCompleted: { backgroundColor: '#10b981', color: 'white', borderColor: '#10b981' },
+    stepLabel: { fontSize: '0.75rem', color: '#64748b', fontWeight: '500' },
+    stepLabelActive: { color: '#0f172a', fontWeight: '700' },
+    stepConnector: { position: 'absolute', top: '16px', left: 'calc(50% + 16px)', width: 'calc(100% - 32px)', height: '2px', backgroundColor: '#e2e8f0', zIndex: -1 },
+    stepConnectorCompleted: { backgroundColor: '#10b981' }
 };
 
 export default GenerateImage;
