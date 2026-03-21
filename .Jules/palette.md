@@ -5,3 +5,7 @@
 ## 2024-06-25 - Disabled States with Inline Styles
 **Learning:** Because this app relies on React inline style objects instead of CSS classes, standard CSS pseudo-classes like `:disabled` do not work to visually update elements when they are disabled. Adding `disabled={true}` to an element will functionally disable it, but without a visual change, users may not realize it's disabled.
 **Action:** Always implement a conditional style object merge (e.g., `style={{ ...styles.button, ...(isDisabled ? styles.buttonDisabled : {}) }}`) alongside the `disabled` attribute to ensure proper visual feedback (reduced opacity, changed background, `cursor: 'not-allowed'`).
+
+## 2024-07-02 - Multi-step Components Progress Indicators
+**Learning:** Text-only progress updates (like `step === 1 && "Start by..."`) are difficult for screen reader users to understand sequentially without proper aria structural roles, as the relationship to a larger sequence is not inherently announced.
+**Action:** When adding or updating multi-step sequences, implement a container with `role="progressbar"`, `aria-valuenow`, `aria-valuemin`, and `aria-valuemax`, and tag the specific active child element with `aria-current="step"` to communicate current status correctly.

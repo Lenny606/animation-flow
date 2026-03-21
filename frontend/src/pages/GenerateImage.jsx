@@ -343,6 +343,13 @@ const GenerateImage = () => {
             <div style={styles.content}>
                 <button onClick={() => navigate('/home')} style={styles.backButton}>← Back Home</button>
                 <h1 style={styles.title}>AI Generation Flow</h1>
+                <div role="progressbar" aria-valuenow={step} aria-valuemin="1" aria-valuemax="5" style={styles.progressContainer}>
+                    {[1, 2, 3, 4, 5].map((s) => (
+                        <div key={s} style={{ ...styles.progressStep, ...(s === step ? styles.activeStep : s < step ? styles.completedStep : {}) }} aria-current={s === step ? "step" : undefined}>
+                            {s}
+                        </div>
+                    ))}
+                </div>
                 <p style={styles.description}>
                     {step === 1 && "Start by describing your vision."}
                     {step === 2 && "The AI has planned your storyboard. Ready to generate?"}
@@ -386,6 +393,32 @@ const styles = {
         fontWeight: '800',
         marginBottom: '0.5rem',
         textAlign: 'center',
+    },
+    progressContainer: {
+        display: 'flex',
+        justifyContent: 'center',
+        gap: '0.75rem',
+        marginBottom: '1rem',
+    },
+    progressStep: {
+        width: '2rem',
+        height: '2rem',
+        borderRadius: '50%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#f1f5f9',
+        color: '#94a3b8',
+        fontWeight: '600',
+        fontSize: '0.875rem',
+    },
+    activeStep: {
+        backgroundColor: '#3b82f6',
+        color: '#ffffff',
+    },
+    completedStep: {
+        backgroundColor: '#10b981',
+        color: '#ffffff',
     },
     subTitle: {
         fontSize: '1.25rem',
