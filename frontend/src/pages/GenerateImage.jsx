@@ -184,6 +184,44 @@ const GenerateImage = () => {
         }
     };
 
+
+    const renderProgressBar = () => {
+        const totalSteps = 5;
+        return (
+            <div
+                style={styles.progressBarContainer}
+                role="progressbar"
+                aria-valuenow={step}
+                aria-valuemin="1"
+                aria-valuemax={totalSteps}
+                aria-label="Generation progress"
+            >
+                {[...Array(totalSteps)].map((_, i) => {
+                    const stepNumber = i + 1;
+                    const isActive = stepNumber === step;
+                    const isCompleted = stepNumber < step;
+
+                    return (
+                        <div
+                            key={stepNumber}
+                            style={{
+                                ...styles.progressStep,
+                            }}
+                            aria-current={isActive ? "step" : undefined}
+                        >
+                            <span style={{
+                                ...styles.progressStepNumber,
+                                ...(isActive || isCompleted ? styles.progressStepNumberActive : {})
+                            }}>
+                                {stepNumber}
+                            </span>
+                        </div>
+                    );
+                })}
+            </div>
+        );
+    };
+
     const renderForm = () => (
         <form onSubmit={handleGenerateScenario} style={styles.form}>
             <div style={styles.inputGroup}>
@@ -351,6 +389,8 @@ const GenerateImage = () => {
                     {step === 5 && "Here is your generated video content."}
                 </p>
 
+                {renderProgressBar()}
+
                 {error && <div style={styles.error}>{error}</div>}
 
                 {step === 1 && renderForm()}
@@ -364,6 +404,40 @@ const GenerateImage = () => {
 };
 
 const styles = {
+    progressBarContainer: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '2.5rem',
+        position: 'relative',
+        padding: '0 1rem',
+    },
+    progressStep: {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        zIndex: 1,
+        flex: 1,
+        position: 'relative',
+    },
+    progressStepNumber: {
+        width: '32px',
+        height: '32px',
+        borderRadius: '50%',
+        backgroundColor: '#f1f5f9',
+        color: '#64748b',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        fontWeight: '600',
+        fontSize: '0.875rem',
+        transition: 'all 0.3s ease',
+        border: '2px solid transparent',
+    },
+    progressStepNumberActive: {
+        backgroundColor: '#3b82f6',
+        color: '#ffffff',
+    },
     container: {
         minHeight: '100vh',
         backgroundColor: '#f8fafc',
