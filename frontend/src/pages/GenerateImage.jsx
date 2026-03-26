@@ -183,6 +183,29 @@ const GenerateImage = () => {
             setIsLoading(false);
         }
     };
+    const renderProgressBar = () => (
+        <div
+            style={styles.progressBarContainer}
+            role="progressbar"
+            aria-valuenow={step}
+            aria-valuemin={1}
+            aria-valuemax={5}
+            aria-label="Generation progress"
+        >
+            {[1, 2, 3, 4, 5].map((s) => (
+                <div
+                    key={s}
+                    style={{
+                        ...styles.progressStep,
+                        ...(s < step ? styles.progressStepCompleted : {}),
+                        ...(s === step ? styles.progressStepActive : {})
+                    }}
+                    aria-current={s === step ? "step" : undefined}
+                />
+            ))}
+        </div>
+    );
+
 
     const renderForm = () => (
         <form onSubmit={handleGenerateScenario} style={styles.form}>
@@ -350,6 +373,8 @@ const GenerateImage = () => {
                     {step === 4 && "Review the Agent's plan before execution."}
                     {step === 5 && "Here is your generated video content."}
                 </p>
+
+                {renderProgressBar()}
 
                 {error && <div style={styles.error}>{error}</div>}
 
@@ -588,6 +613,27 @@ const styles = {
         backgroundColor: '#eff6ff',
         marginBottom: '0.5rem',
     }
+,
+
+    progressBarContainer: {
+        display: 'flex',
+        gap: '0.5rem',
+        marginBottom: '2rem',
+        justifyContent: 'center',
+    },
+    progressStep: {
+        height: '8px',
+        width: '40px',
+        borderRadius: '4px',
+        backgroundColor: '#f1f5f9',
+        transition: 'background-color 0.3s ease',
+    },
+    progressStepActive: {
+        backgroundColor: '#3b82f6',
+    },
+    progressStepCompleted: {
+        backgroundColor: '#10b981',
+    },
 };
 
 export default GenerateImage;
