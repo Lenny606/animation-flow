@@ -351,6 +351,31 @@ const GenerateImage = () => {
                     {step === 5 && "Here is your generated video content."}
                 </p>
 
+                <div
+                    style={styles.progressBar}
+                    role="progressbar"
+                    aria-valuenow={step}
+                    aria-valuemin="1"
+                    aria-valuemax="5"
+                    aria-label={`Step ${step} of 5`}
+                >
+                    {[1, 2, 3, 4, 5].map(s => (
+                        <React.Fragment key={s}>
+                            <div
+                                style={{
+                                    ...styles.stepIndicator,
+                                    ...(s === step ? styles.activeStep : {}),
+                                    ...(s < step ? styles.completedStep : {})
+                                }}
+                                aria-current={s === step ? "step" : undefined}
+                            >
+                                {s}
+                            </div>
+                            {s < 5 && <div style={{ ...styles.stepConnector, ...(s < step ? styles.completedConnector : {}) }} />}
+                        </React.Fragment>
+                    ))}
+                </div>
+
                 {error && <div style={styles.error}>{error}</div>}
 
                 {step === 1 && renderForm()}
@@ -587,6 +612,48 @@ const styles = {
         fontSize: '0.9rem',
         backgroundColor: '#eff6ff',
         marginBottom: '0.5rem',
+    },
+    progressBar: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: '2rem',
+        maxWidth: '400px',
+        margin: '0 auto 2.5rem auto',
+    },
+    stepIndicator: {
+        width: '32px',
+        height: '32px',
+        borderRadius: '50%',
+        backgroundColor: '#f1f5f9',
+        color: '#64748b',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        fontWeight: '600',
+        fontSize: '0.875rem',
+        zIndex: 1,
+        transition: 'all 0.3s ease',
+    },
+    activeStep: {
+        backgroundColor: '#3b82f6',
+        color: 'white',
+        boxShadow: '0 0 0 4px #eff6ff',
+    },
+    completedStep: {
+        backgroundColor: '#10b981',
+        color: 'white',
+    },
+    stepConnector: {
+        flex: 1,
+        height: '2px',
+        backgroundColor: '#f1f5f9',
+        margin: '0 -8px',
+        zIndex: 0,
+        transition: 'background-color 0.3s ease',
+    },
+    completedConnector: {
+        backgroundColor: '#10b981',
     }
 };
 
