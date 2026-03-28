@@ -338,11 +338,55 @@ const GenerateImage = () => {
         </div>
     );
 
+    const renderProgressBar = () => {
+        const steps = ['Prompt', 'Storyboard', 'Assets', 'Plan', 'Video'];
+        return (
+            <div
+                style={styles.progressBarContainer}
+                role="progressbar"
+                aria-valuenow={step}
+                aria-valuemin="1"
+                aria-valuemax="5"
+                aria-label="Generation Progress"
+            >
+                {steps.map((s, idx) => {
+                    const stepNumber = idx + 1;
+                    const isActive = stepNumber === step;
+                    const isCompleted = stepNumber < step;
+
+                    let stepStyle = { ...styles.progressStep };
+                    if (isActive) stepStyle = { ...stepStyle, ...styles.progressStepActive };
+                    else if (isCompleted) stepStyle = { ...stepStyle, ...styles.progressStepCompleted };
+
+                    return (
+                        <div key={idx} style={styles.progressStepWrapper}>
+                            <div
+                                style={stepStyle}
+                                aria-current={isActive ? "step" : undefined}
+                            >
+                                {isCompleted ? '✓' : stepNumber}
+                            </div>
+                            <span style={{
+                                ...styles.progressLabel,
+                                ...(isActive || isCompleted ? styles.progressLabelActive : {})
+                            }}>
+                                {s}
+                            </span>
+                        </div>
+                    );
+                })}
+            </div>
+        );
+    };
+
     return (
         <div style={styles.container}>
             <div style={styles.content}>
                 <button onClick={() => navigate('/home')} style={styles.backButton}>← Back Home</button>
                 <h1 style={styles.title}>AI Generation Flow</h1>
+
+                {renderProgressBar()}
+
                 <p style={styles.description}>
                     {step === 1 && "Start by describing your vision."}
                     {step === 2 && "The AI has planned your storyboard. Ready to generate?"}
@@ -587,6 +631,54 @@ const styles = {
         fontSize: '0.9rem',
         backgroundColor: '#eff6ff',
         marginBottom: '0.5rem',
+    },
+    progressBarContainer: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        margin: '2rem 0',
+        padding: '0 1rem',
+        position: 'relative',
+    },
+    progressStepWrapper: {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: '0.5rem',
+        zIndex: 1,
+        flex: 1,
+    },
+    progressStep: {
+        width: '32px',
+        height: '32px',
+        borderRadius: '50%',
+        backgroundColor: '#f1f5f9',
+        color: '#94a3b8',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        fontWeight: '600',
+        fontSize: '0.875rem',
+        transition: 'all 0.3s ease',
+        border: '2px solid transparent',
+    },
+    progressStepActive: {
+        backgroundColor: '#eff6ff',
+        color: '#3b82f6',
+        borderColor: '#3b82f6',
+    },
+    progressStepCompleted: {
+        backgroundColor: '#10b981',
+        color: 'white',
+    },
+    progressLabel: {
+        fontSize: '0.75rem',
+        color: '#94a3b8',
+        fontWeight: '500',
+    },
+    progressLabelActive: {
+        color: '#334155',
+        fontWeight: '600',
     }
 };
 
