@@ -343,6 +343,11 @@ const GenerateImage = () => {
             <div style={styles.content}>
                 <button onClick={() => navigate('/home')} style={styles.backButton}>← Back Home</button>
                 <h1 style={styles.title}>AI Generation Flow</h1>
+                <div role="progressbar" aria-valuenow={step} aria-valuemin={1} aria-valuemax={5} style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', marginBottom: '1.5rem' }}>
+                    {[1, 2, 3, 4, 5].map((s) => (
+                        <div key={s} aria-current={step === s ? "step" : undefined} style={{ height: '0.5rem', flex: 1, maxWidth: '4rem', borderRadius: '9999px', backgroundColor: s < step ? '#10b981' : s === step ? '#3b82f6' : '#f1f5f9', transition: 'background-color 0.3s ease' }} />
+                    ))}
+                </div>
                 <p style={styles.description}>
                     {step === 1 && "Start by describing your vision."}
                     {step === 2 && "The AI has planned your storyboard. Ready to generate?"}
