@@ -184,6 +184,53 @@ const GenerateImage = () => {
         }
     };
 
+    const STEPS = ["Details", "Scenario", "Images", "Plan", "Video"];
+
+    const renderProgress = () => (
+        <div
+            style={styles.progressContainer}
+            role="progressbar"
+            aria-valuenow={step}
+            aria-valuemin="1"
+            aria-valuemax="5"
+            aria-label="Generation progress"
+        >
+            {STEPS.map((stepName, idx) => {
+                const stepNum = idx + 1;
+                const isActive = step === stepNum;
+                const isCompleted = step > stepNum;
+
+                return (
+                    <div key={stepName} style={styles.stepWrapper}>
+                        <div
+                            style={{
+                                ...styles.stepCircle,
+                                ...(isActive ? styles.stepActive : {}),
+                                ...(isCompleted ? styles.stepCompleted : {})
+                            }}
+                            aria-current={isActive ? "step" : undefined}
+                        >
+                            {isCompleted ? "✓" : stepNum}
+                        </div>
+                        <span style={{
+                            ...styles.stepName,
+                            ...(isActive ? styles.stepNameActive : {}),
+                            ...(isCompleted ? styles.stepNameCompleted : {})
+                        }}>
+                            {stepName}
+                        </span>
+                        {idx < STEPS.length - 1 && (
+                            <div style={{
+                                ...styles.stepLine,
+                                ...(isCompleted ? styles.stepLineCompleted : {})
+                            }} />
+                        )}
+                    </div>
+                );
+            })}
+        </div>
+    );
+
     const renderForm = () => (
         <form onSubmit={handleGenerateScenario} style={styles.form}>
             <div style={styles.inputGroup}>
@@ -350,6 +397,8 @@ const GenerateImage = () => {
                     {step === 4 && "Review the Agent's plan before execution."}
                     {step === 5 && "Here is your generated video content."}
                 </p>
+
+                {renderProgress()}
 
                 {error && <div style={styles.error}>{error}</div>}
 
@@ -587,6 +636,72 @@ const styles = {
         fontSize: '0.9rem',
         backgroundColor: '#eff6ff',
         marginBottom: '0.5rem',
+    },
+    progressContainer: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '2rem',
+        padding: '0 1rem',
+        position: 'relative',
+    },
+    stepWrapper: {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        position: 'relative',
+        zIndex: 1,
+        flex: 1,
+    },
+    stepCircle: {
+        width: '2rem',
+        height: '2rem',
+        borderRadius: '50%',
+        backgroundColor: '#f1f5f9',
+        color: '#94a3b8',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        fontWeight: '600',
+        fontSize: '0.875rem',
+        marginBottom: '0.5rem',
+        border: '2px solid #e2e8f0',
+        transition: 'all 0.3s ease',
+    },
+    stepActive: {
+        backgroundColor: '#eff6ff',
+        borderColor: '#3b82f6',
+        color: '#3b82f6',
+    },
+    stepCompleted: {
+        backgroundColor: '#10b981',
+        borderColor: '#10b981',
+        color: 'white',
+    },
+    stepName: {
+        fontSize: '0.75rem',
+        color: '#94a3b8',
+        fontWeight: '500',
+    },
+    stepNameActive: {
+        color: '#3b82f6',
+        fontWeight: '600',
+    },
+    stepNameCompleted: {
+        color: '#10b981',
+    },
+    stepLine: {
+        position: 'absolute',
+        top: '1rem',
+        left: 'calc(50% + 1rem)',
+        width: 'calc(100% - 2rem)',
+        height: '2px',
+        backgroundColor: '#e2e8f0',
+        zIndex: -1,
+        transition: 'background-color 0.3s ease',
+    },
+    stepLineCompleted: {
+        backgroundColor: '#10b981',
     }
 };
 
