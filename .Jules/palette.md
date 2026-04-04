@@ -5,3 +5,7 @@
 ## 2024-06-25 - Disabled States with Inline Styles
 **Learning:** Because this app relies on React inline style objects instead of CSS classes, standard CSS pseudo-classes like `:disabled` do not work to visually update elements when they are disabled. Adding `disabled={true}` to an element will functionally disable it, but without a visual change, users may not realize it's disabled.
 **Action:** Always implement a conditional style object merge (e.g., `style={{ ...styles.button, ...(isDisabled ? styles.buttonDisabled : {}) }}`) alongside the `disabled` attribute to ensure proper visual feedback (reduced opacity, changed background, `cursor: 'not-allowed'`).
+
+## 2024-04-04 - Accessible Multi-Step Progress Indicators
+**Learning:** When building multi-step flows (like the Generation process) in a React application without standard CSS pseudo-classes, the active step isn't just a visual highlight. It needs to be communicated programmatically to screen readers. Relying solely on inline color changes (`#3b82f6` vs `#f1f5f9`) is not sufficient for accessibility.
+**Action:** Always implement a structural container with `role="progressbar"`, `aria-valuenow`, `aria-valuemin`, `aria-valuemax`, and ensure the currently active step element receives `aria-current="step"`. The visual state must be driven by conditional style merging (e.g., `...(isActive ? styles.stepActive : {})`).

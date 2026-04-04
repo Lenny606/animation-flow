@@ -338,6 +338,46 @@ const GenerateImage = () => {
         </div>
     );
 
+    const renderProgressBar = () => {
+        const steps = ['Details', 'Storyboard', 'Assets', 'Review', 'Complete'];
+        return (
+            <div
+                style={styles.progressBarContainer}
+                role="progressbar"
+                aria-valuenow={step}
+                aria-valuemin="1"
+                aria-valuemax="5"
+                aria-label="Generation Progress"
+            >
+                {steps.map((label, index) => {
+                    const stepNum = index + 1;
+                    const isCompleted = stepNum < step;
+                    const isActive = stepNum === step;
+                    return (
+                        <div key={label} style={styles.stepWrapper}>
+                            <div
+                                style={{
+                                    ...styles.stepIndicator,
+                                    ...(isActive ? styles.stepActive : {}),
+                                    ...(isCompleted ? styles.stepCompleted : {})
+                                }}
+                                aria-current={isActive ? 'step' : undefined}
+                            >
+                                {isCompleted ? '✓' : stepNum}
+                            </div>
+                            <span style={{
+                                ...styles.stepLabel,
+                                ...(isActive || isCompleted ? styles.stepLabelActive : {})
+                            }}>
+                                {label}
+                            </span>
+                        </div>
+                    );
+                })}
+            </div>
+        );
+    };
+
     return (
         <div style={styles.container}>
             <div style={styles.content}>
@@ -350,6 +390,8 @@ const GenerateImage = () => {
                     {step === 4 && "Review the Agent's plan before execution."}
                     {step === 5 && "Here is your generated video content."}
                 </p>
+
+                {renderProgressBar()}
 
                 {error && <div style={styles.error}>{error}</div>}
 
@@ -386,6 +428,51 @@ const styles = {
         fontWeight: '800',
         marginBottom: '0.5rem',
         textAlign: 'center',
+    },
+    progressBarContainer: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        marginBottom: '2.5rem',
+        position: 'relative',
+        padding: '0 1rem',
+    },
+    stepWrapper: {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: '0.5rem',
+        zIndex: 1,
+    },
+    stepIndicator: {
+        width: '2rem',
+        height: '2rem',
+        borderRadius: '50%',
+        backgroundColor: '#f1f5f9',
+        color: '#64748b',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        fontWeight: '600',
+        fontSize: '0.875rem',
+        transition: 'all 0.3s ease',
+    },
+    stepActive: {
+        backgroundColor: '#3b82f6',
+        color: 'white',
+        boxShadow: '0 0 0 4px #eff6ff',
+    },
+    stepCompleted: {
+        backgroundColor: '#10b981',
+        color: 'white',
+    },
+    stepLabel: {
+        fontSize: '0.75rem',
+        color: '#94a3b8',
+        fontWeight: '500',
+    },
+    stepLabelActive: {
+        color: '#334155',
+        fontWeight: '600',
     },
     subTitle: {
         fontSize: '1.25rem',
