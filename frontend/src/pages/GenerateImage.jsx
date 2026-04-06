@@ -351,6 +351,27 @@ const GenerateImage = () => {
                     {step === 5 && "Here is your generated video content."}
                 </p>
 
+                <div
+                    style={styles.progressContainer}
+                    role="progressbar"
+                    aria-valuenow={step}
+                    aria-valuemin={1}
+                    aria-valuemax={5}
+                    aria-label={`Step ${step} of 5`}
+                >
+                    {[1, 2, 3, 4, 5].map((s) => (
+                        <div
+                            key={s}
+                            style={{
+                                ...styles.progressStep,
+                                backgroundColor: s <= step ? '#3b82f6' : '#f1f5f9'
+                            }}
+                            aria-current={s === step ? 'step' : undefined}
+                            title={`Step ${s}`}
+                        />
+                    ))}
+                </div>
+
                 {error && <div style={styles.error}>{error}</div>}
 
                 {step === 1 && renderForm()}
@@ -587,6 +608,18 @@ const styles = {
         fontSize: '0.9rem',
         backgroundColor: '#eff6ff',
         marginBottom: '0.5rem',
+    },
+    progressContainer: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        gap: '0.5rem',
+        marginBottom: '2rem',
+    },
+    progressStep: {
+        flex: 1,
+        height: '6px',
+        borderRadius: '4px',
+        transition: 'background-color 0.3s ease',
     }
 };
 
