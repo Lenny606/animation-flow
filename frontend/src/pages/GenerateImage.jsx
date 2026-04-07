@@ -321,6 +321,44 @@ const GenerateImage = () => {
         </div>
     );
 
+    const renderProgress = () => {
+        const totalSteps = 5;
+        return (
+            <div
+                style={styles.progressContainer}
+                role="progressbar"
+                aria-valuenow={step}
+                aria-valuemin="1"
+                aria-valuemax={totalSteps}
+                aria-label={`Step ${step} of ${totalSteps}`}
+            >
+                {Array.from({ length: totalSteps }, (_, i) => i + 1).map((s) => (
+                    <React.Fragment key={s}>
+                        <div
+                            style={{
+                                ...styles.progressDot,
+                                ...(s < step ? styles.progressDotCompleted : {}),
+                                ...(s === step ? styles.progressDotActive : {})
+                            }}
+                            aria-current={s === step ? "step" : undefined}
+                            title={`Step ${s}`}
+                        >
+                            {s < step ? '✓' : s}
+                        </div>
+                        {s < totalSteps && (
+                            <div
+                                style={{
+                                    ...styles.progressLine,
+                                    ...(s < step ? styles.progressLineCompleted : {})
+                                }}
+                            />
+                        )}
+                    </React.Fragment>
+                ))}
+            </div>
+        );
+    };
+
     const renderFinalVideo = () => (
         <div style={styles.stepContainer}>
             <h3 style={styles.subTitleSuccess}>Video Generation Complete!</h3>
@@ -343,6 +381,9 @@ const GenerateImage = () => {
             <div style={styles.content}>
                 <button onClick={() => navigate('/home')} style={styles.backButton}>← Back Home</button>
                 <h1 style={styles.title}>AI Generation Flow</h1>
+
+                {renderProgress()}
+
                 <p style={styles.description}>
                     {step === 1 && "Start by describing your vision."}
                     {step === 2 && "The AI has planned your storyboard. Ready to generate?"}
@@ -587,6 +628,47 @@ const styles = {
         fontSize: '0.9rem',
         backgroundColor: '#eff6ff',
         marginBottom: '0.5rem',
+    },
+    progressContainer: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        margin: '1.5rem 0 2rem 0',
+        width: '100%',
+    },
+    progressDot: {
+        width: '28px',
+        height: '28px',
+        borderRadius: '50%',
+        backgroundColor: '#f1f5f9',
+        color: '#94a3b8',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: '0.875rem',
+        fontWeight: '600',
+        transition: 'all 0.3s ease',
+        zIndex: 1,
+    },
+    progressDotActive: {
+        backgroundColor: '#3b82f6',
+        color: 'white',
+        boxShadow: '0 0 0 4px rgba(59, 130, 246, 0.2)',
+    },
+    progressDotCompleted: {
+        backgroundColor: '#10b981',
+        color: 'white',
+    },
+    progressLine: {
+        flex: 1,
+        height: '3px',
+        backgroundColor: '#f1f5f9',
+        margin: '0 4px',
+        maxWidth: '50px',
+        transition: 'background-color 0.3s ease',
+    },
+    progressLineCompleted: {
+        backgroundColor: '#10b981',
     }
 };
 
