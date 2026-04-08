@@ -350,6 +350,13 @@ const GenerateImage = () => {
                     {step === 4 && "Review the Agent's plan before execution."}
                     {step === 5 && "Here is your generated video content."}
                 </p>
+                <div style={styles.progressContainer} role="progressbar" aria-valuenow={step} aria-valuemin="1" aria-valuemax="5">
+                    {[1, 2, 3, 4, 5].map((num) => (
+                        <div key={num} style={{ ...styles.progressStep, backgroundColor: step > num ? '#10b981' : step === num ? '#3b82f6' : '#f1f5f9', color: step >= num ? 'white' : '#94a3b8' }} aria-current={step === num ? "step" : undefined}>
+                            {step > num ? '✓' : num}
+                        </div>
+                    ))}
+                </div>
 
                 {error && <div style={styles.error}>{error}</div>}
 
@@ -587,6 +594,24 @@ const styles = {
         fontSize: '0.9rem',
         backgroundColor: '#eff6ff',
         marginBottom: '0.5rem',
+    },
+    progressContainer: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '2rem',
+        padding: '0 10%',
+    },
+    progressStep: {
+        width: '32px',
+        height: '32px',
+        borderRadius: '50%',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        fontWeight: 'bold',
+        fontSize: '0.875rem',
+        transition: 'all 0.3s ease',
     }
 };
 
