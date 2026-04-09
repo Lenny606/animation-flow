@@ -338,11 +338,57 @@ const GenerateImage = () => {
         </div>
     );
 
+    const steps = [
+        { num: 1, label: 'Form' },
+        { num: 2, label: 'Storyboard' },
+        { num: 3, label: 'Images' },
+        { num: 4, label: 'Plan' },
+        { num: 5, label: 'Video' }
+    ];
+
     return (
         <div style={styles.container}>
             <div style={styles.content}>
                 <button onClick={() => navigate('/home')} style={styles.backButton}>← Back Home</button>
                 <h1 style={styles.title}>AI Generation Flow</h1>
+
+                {/* Progress Indicator */}
+                <div
+                    style={styles.progressContainer}
+                    role="progressbar"
+                    aria-valuenow={step}
+                    aria-valuemin="1"
+                    aria-valuemax="5"
+                    aria-label={`Step ${step} of 5: ${steps[step-1].label}`}
+                >
+                    {steps.map((s) => (
+                        <div key={s.num} style={styles.progressStepWrapper}>
+                            <div
+                                style={{
+                                    ...styles.progressCircle,
+                                    ...(s.num < step ? styles.progressCircleCompleted : {}),
+                                    ...(s.num === step ? styles.progressCircleActive : {})
+                                }}
+                                aria-current={s.num === step ? "step" : undefined}
+                            >
+                                {s.num < step ? '✓' : s.num}
+                            </div>
+                            <span style={{
+                                ...styles.progressLabel,
+                                ...(s.num === step ? styles.progressLabelActive : {})
+                            }}>
+                                {s.label}
+                            </span>
+                            {s.num < 5 && (
+                                <div style={{
+                                    ...styles.progressLine,
+                                    ...(s.num < step ? styles.progressLineCompleted : {})
+                                }} />
+                            )}
+                        </div>
+                    ))}
+                </div>
+
                 <p style={styles.description}>
                     {step === 1 && "Start by describing your vision."}
                     {step === 2 && "The AI has planned your storyboard. Ready to generate?"}
@@ -587,6 +633,70 @@ const styles = {
         fontSize: '0.9rem',
         backgroundColor: '#eff6ff',
         marginBottom: '0.5rem',
+    },
+    progressContainer: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        margin: '2rem 0',
+        padding: '0 1rem',
+    },
+    progressStepWrapper: {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        position: 'relative',
+        flex: 1,
+    },
+    progressCircle: {
+        width: '32px',
+        height: '32px',
+        borderRadius: '50%',
+        backgroundColor: '#f1f5f9',
+        color: '#64748b',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        fontSize: '0.875rem',
+        fontWeight: '600',
+        zIndex: 2,
+        border: '2px solid #e2e8f0',
+        transition: 'all 0.3s ease',
+    },
+    progressCircleActive: {
+        backgroundColor: '#3b82f6',
+        color: 'white',
+        borderColor: '#3b82f6',
+    },
+    progressCircleCompleted: {
+        backgroundColor: '#10b981',
+        color: 'white',
+        borderColor: '#10b981',
+    },
+    progressLabel: {
+        fontSize: '0.75rem',
+        color: '#64748b',
+        marginTop: '0.5rem',
+        fontWeight: '500',
+        position: 'absolute',
+        top: '100%',
+        whiteSpace: 'nowrap',
+    },
+    progressLabelActive: {
+        color: '#0f172a',
+        fontWeight: '700',
+    },
+    progressLine: {
+        position: 'absolute',
+        top: '16px',
+        left: '50%',
+        width: '100%',
+        height: '2px',
+        backgroundColor: '#e2e8f0',
+        zIndex: 1,
+    },
+    progressLineCompleted: {
+        backgroundColor: '#10b981',
     }
 };
 
