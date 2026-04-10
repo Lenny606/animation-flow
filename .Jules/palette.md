@@ -5,3 +5,11 @@
 ## 2024-06-25 - Disabled States with Inline Styles
 **Learning:** Because this app relies on React inline style objects instead of CSS classes, standard CSS pseudo-classes like `:disabled` do not work to visually update elements when they are disabled. Adding `disabled={true}` to an element will functionally disable it, but without a visual change, users may not realize it's disabled.
 **Action:** Always implement a conditional style object merge (e.g., `style={{ ...styles.button, ...(isDisabled ? styles.buttonDisabled : {}) }}`) alongside the `disabled` attribute to ensure proper visual feedback (reduced opacity, changed background, `cursor: 'not-allowed'`).
+
+## 2026-04-10 - Progress Indicators and ARIA Structural Roles
+**Learning:** When adding custom visual progress bars to multi-step React components (like the Generation Flow), basic visual styles aren't enough for screen readers to understand the structure. Screen readers need explicit structural cues to interpret a sequence of  elements as a unified progress indicator.
+**Action:** Always wrap custom progress steps in a container with `role="progressbar"`, `aria-valuenow`, `aria-valuemin`, and `aria-valuemax`. Crucially, mark the currently active step child element with `aria-current="step"` to ensure the exact position is conveyed correctly.
+
+## 2026-04-10 - Progress Indicators and ARIA Structural Roles
+**Learning:** When adding custom visual progress bars to multi-step React components (like the Generation Flow), basic visual styles aren't enough for screen readers to understand the structure. Screen readers need explicit structural cues to interpret a sequence of div elements as a unified progress indicator.
+**Action:** Always wrap custom progress steps in a container with role='progressbar', aria-valuenow, aria-valuemin, and aria-valuemax. Crucially, mark the currently active step child element with aria-current='step' to ensure the exact position is conveyed correctly.
