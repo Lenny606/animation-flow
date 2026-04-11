@@ -351,6 +351,35 @@ const GenerateImage = () => {
                     {step === 5 && "Here is your generated video content."}
                 </p>
 
+                <div
+                    style={styles.progressContainer}
+                    role="progressbar"
+                    aria-valuenow={step}
+                    aria-valuemin="1"
+                    aria-valuemax="5"
+                    aria-label="Generation progress"
+                >
+                    {[1, 2, 3, 4, 5].map((s) => (
+                        <div key={s} style={styles.stepIndicatorWrapper}>
+                            <div
+                                style={{
+                                    ...styles.stepDot,
+                                    ...(s < step ? styles.stepDotCompleted : s === step ? styles.stepDotActive : styles.stepDotInactive)
+                                }}
+                                aria-current={s === step ? "step" : undefined}
+                            >
+                                {s < step ? "✓" : s}
+                            </div>
+                            <div style={{
+                                ...styles.stepLabel,
+                                ...(s === step ? styles.stepLabelActive : {})
+                            }}>
+                                {['Setup', 'Story', 'Assets', 'Plan', 'Result'][s-1]}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
                 {error && <div style={styles.error}>{error}</div>}
 
                 {step === 1 && renderForm()}
@@ -587,6 +616,58 @@ const styles = {
         fontSize: '0.9rem',
         backgroundColor: '#eff6ff',
         marginBottom: '0.5rem',
+    },
+    progressContainer: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        marginBottom: '2rem',
+        position: 'relative',
+        padding: '0 1rem',
+    },
+    stepIndicatorWrapper: {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: '0.5rem',
+        zIndex: 1,
+        width: '60px',
+    },
+    stepDot: {
+        width: '32px',
+        height: '32px',
+        borderRadius: '50%',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        fontWeight: 'bold',
+        fontSize: '0.875rem',
+        transition: 'all 0.3s ease',
+    },
+    stepDotInactive: {
+        backgroundColor: '#f1f5f9',
+        color: '#94a3b8',
+        border: '2px solid #e2e8f0',
+    },
+    stepDotActive: {
+        backgroundColor: '#3b82f6',
+        color: '#ffffff',
+        border: '2px solid #3b82f6',
+        boxShadow: '0 0 0 4px #eff6ff',
+    },
+    stepDotCompleted: {
+        backgroundColor: '#10b981',
+        color: '#ffffff',
+        border: '2px solid #10b981',
+    },
+    stepLabel: {
+        fontSize: '0.75rem',
+        color: '#64748b',
+        fontWeight: '500',
+        textAlign: 'center',
+    },
+    stepLabelActive: {
+        color: '#3b82f6',
+        fontWeight: '600',
     }
 };
 
