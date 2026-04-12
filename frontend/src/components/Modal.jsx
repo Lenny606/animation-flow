@@ -1,7 +1,43 @@
-import React, { useId } from 'react';
+import React, { useId, useEffect, useRef } from 'react';
 
 const Modal = ({ isOpen, onClose, title, children }) => {
     const titleId = useId();
+    const closeButtonRef = useRef(null);
+
+    // Handle Escape Key
+    useEffect(() => {
+        const handleEscape = (e) => {
+            if (e.key === 'Escape') {
+                onClose();
+            }
+        };
+
+        if (isOpen) {
+            window.addEventListener('keydown', handleEscape);
+        }
+
+        return () => {
+            window.removeEventListener('keydown', handleEscape);
+        };
+    }, [isOpen, onClose]);
+
+    // Handle Initial Focus
+    useEffect(() => {
+        let timeoutId;
+        if (isOpen) {
+            timeoutId = setTimeout(() => {
+                if (closeButtonRef.current) {
+                    closeButtonRef.current.focus();
+                }
+            }, 10);
+        }
+
+        return () => {
+            if (timeoutId) {
+                clearTimeout(timeoutId);
+            }
+        };
+    }, [isOpen]);
 
     if (!isOpen) return null;
 
@@ -17,6 +53,7 @@ const Modal = ({ isOpen, onClose, title, children }) => {
                 <div style={styles.header}>
                     <h2 id={titleId} style={styles.title}>{title}</h2>
                     <button
+                        ref={closeButtonRef}
                         style={styles.closeButton}
                         onClick={onClose}
                         aria-label="Close modal"
@@ -85,9 +122,5 @@ const styles = {
         lineHeight: '1.6',
     },
 };
-
-// Add fade-in animation via standard CSS in a real app, 
-// but for this simple version we'll just use inline styles.
-// In a full app, I'd put this in index.css
 
 export default Modal;
