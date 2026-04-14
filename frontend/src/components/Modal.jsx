@@ -1,7 +1,33 @@
-import React, { useId } from 'react';
+import React, { useId, useEffect, useRef } from 'react';
 
 const Modal = ({ isOpen, onClose, title, children }) => {
     const titleId = useId();
+    const closeButtonRef = useRef(null);
+
+    // Handle Escape key to close modal
+    useEffect(() => {
+        if (!isOpen) return;
+
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape') {
+                onClose();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [isOpen, onClose]);
+
+    // Auto-focus close button when modal opens
+    useEffect(() => {
+        if (!isOpen) return;
+
+        const timeoutId = setTimeout(() => {
+            closeButtonRef.current?.focus();
+        }, 10);
+
+        return () => clearTimeout(timeoutId);
+    }, [isOpen]);
 
     if (!isOpen) return null;
 
@@ -17,6 +43,7 @@ const Modal = ({ isOpen, onClose, title, children }) => {
                 <div style={styles.header}>
                     <h2 id={titleId} style={styles.title}>{title}</h2>
                     <button
+                        ref={closeButtonRef}
                         style={styles.closeButton}
                         onClick={onClose}
                         aria-label="Close modal"
