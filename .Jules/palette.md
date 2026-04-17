@@ -8,3 +8,7 @@
 ## 2025-04-11 - Add Progress Indicator
 **Learning:** For multi-step React workflows using inline styles, aria-current="step" applied conditionally dynamically conveys current location while mapping an array to render visual indicators ensures consistency without CSS classes.
 **Action:** Always add `role="progressbar"`, `aria-valuenow`, `aria-valuemin`, and `aria-valuemax` on the container, and `aria-current="step"` on the active child item for accessible multi-step components.
+
+## 2025-04-17 - Accessible Custom Modals
+**Learning:** When implementing or modifying custom modals in React, native dialog accessibility features must be manually provided. Combining `keydown` event listeners with auto-focus logic in a single `useEffect` can cause unintended re-focusing bugs.
+**Action:** Always add a `keydown` listener for the `Escape` key to close the modal, and use a `ref` with a brief `setTimeout` in a separate `useEffect` to automatically shift initial focus to the close button when the modal opens.
