@@ -47,34 +47,38 @@ const Login = () => {
             <div style={styles.card}>
                 <h2 style={styles.title}>Login</h2>
                 <form onSubmit={handleSubmit} style={styles.form}>
-                    {error && <div style={styles.error}>{error}</div>}
+                    {error && <div id="login-error" role="alert" style={styles.error}>{error}</div>}
                     <div style={styles.inputGroup}>
-                        <label htmlFor="email" style={styles.label}>Email</label>
+                        <label htmlFor="email" style={styles.label}>Email <span aria-hidden="true" style={{ color: '#dc3545', marginLeft: '4px' }}>*</span></label>
                         <input
                             id="email"
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
-                            style={{ ...styles.input, ...(isLoading ? styles.inputDisabled : {}) }}
+                            style={{ ...styles.input, ...(isLoading ? styles.inputDisabled : {}), ...(error ? styles.inputError : {}) }}
                             placeholder="Enter your email"
                             disabled={isLoading}
+                            aria-invalid={!!error}
+                            aria-describedby={error ? "login-error" : undefined}
                         />
                     </div>
                     <div style={styles.inputGroup}>
-                        <label htmlFor="password" style={styles.label}>Password</label>
+                        <label htmlFor="password" style={styles.label}>Password <span aria-hidden="true" style={{ color: '#dc3545', marginLeft: '4px' }}>*</span></label>
                         <input
                             id="password"
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
-                            style={{ ...styles.input, ...(isLoading ? styles.inputDisabled : {}) }}
+                            style={{ ...styles.input, ...(isLoading ? styles.inputDisabled : {}), ...(error ? styles.inputError : {}) }}
                             placeholder="Enter your password"
                             disabled={isLoading}
+                            aria-invalid={!!error}
+                            aria-describedby={error ? "login-error" : undefined}
                         />
                     </div>
-                    <button type="submit" style={{ ...styles.button, ...(isLoading ? styles.buttonDisabled : {}) }} disabled={isLoading}>
+                    <button type="submit" style={{ ...styles.button, ...(isLoading ? styles.buttonDisabled : {}) }} disabled={isLoading} aria-busy={isLoading}>
                         {isLoading ? 'Signing In...' : 'Sign In'}
                     </button>
                 </form>
@@ -128,6 +132,10 @@ const styles = {
         backgroundColor: '#e9ecef',
         cursor: 'not-allowed',
         opacity: 0.7,
+    },
+    inputError: {
+        borderColor: '#dc3545',
+        outline: '1px solid #dc3545',
     },
     button: {
         padding: '0.75rem',
