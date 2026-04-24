@@ -12,3 +12,7 @@
 ## 2025-05-15 - Modal Keyboard Accessibility
 **Learning:** When implementing custom modals in React, the browser's native dialog keyboard accessibility features are lost. This includes the ability to close the modal using the Escape key and automatically shifting focus to the modal when opened.
 **Action:** Always manually provide these accessibility features: add a `keydown` event listener for the `Escape` key to close the modal, and use a `ref` with a brief `setTimeout` to automatically shift initial focus to the close button when the modal opens. Ensure to separate the auto-focus logic into its own `useEffect` hook distinct from other event listeners.
+
+## 2025-05-20 - Form Required Indicators & Error Association
+**Learning:** This application previously lacked visually accessible and screen-reader compliant mappings for form inputs and their corresponding error alerts.
+**Action:** Always add visual required indicators (like red asterisks) to required inputs and use `aria-hidden="true"` so screen readers ignore them. When displaying form errors, assign an `id` and `role="alert"` to the error container, and explicitly bind the error state to the input by dynamically setting `aria-invalid={!!error}` and `aria-describedby={error ? "error-id" : undefined}`.
