@@ -47,28 +47,36 @@ const Login = () => {
             <div style={styles.card}>
                 <h2 style={styles.title}>Login</h2>
                 <form onSubmit={handleSubmit} style={styles.form}>
-                    {error && <div style={styles.error}>{error}</div>}
+                    {error && <div style={styles.error} role="alert" id="login-error">{error}</div>}
                     <div style={styles.inputGroup}>
-                        <label htmlFor="email" style={styles.label}>Email</label>
+                        <label htmlFor="email" style={styles.label}>
+                            Email <span aria-hidden="true" style={{color: '#dc3545'}}>*</span>
+                        </label>
                         <input
                             id="email"
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
+                            aria-invalid={!!error}
+                            aria-describedby={error ? "login-error" : undefined}
                             style={{ ...styles.input, ...(isLoading ? styles.inputDisabled : {}) }}
                             placeholder="Enter your email"
                             disabled={isLoading}
                         />
                     </div>
                     <div style={styles.inputGroup}>
-                        <label htmlFor="password" style={styles.label}>Password</label>
+                        <label htmlFor="password" style={styles.label}>
+                            Password <span aria-hidden="true" style={{color: '#dc3545'}}>*</span>
+                        </label>
                         <input
                             id="password"
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
+                            aria-invalid={!!error}
+                            aria-describedby={error ? "login-error" : undefined}
                             style={{ ...styles.input, ...(isLoading ? styles.inputDisabled : {}) }}
                             placeholder="Enter your password"
                             disabled={isLoading}

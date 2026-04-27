@@ -188,7 +188,9 @@ const GenerateImage = () => {
         <form onSubmit={handleGenerateScenario} style={styles.form}>
             <div style={styles.inputGroup}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <label htmlFor="topic" style={styles.label}>Topic</label>
+                    <label htmlFor="topic" style={styles.label}>
+                        Topic <span aria-hidden="true" style={{color: '#dc2626'}}>*</span>
+                    </label>
                     {songs.length > 0 && (
                         <button
                             type="button"
@@ -223,6 +225,8 @@ const GenerateImage = () => {
                     onChange={handleInputChange}
                     placeholder="e.g. The future of robotics"
                     required
+                    aria-invalid={!!error}
+                    aria-describedby={error ? "form-error" : undefined}
                     style={{ ...styles.input, ...(isLoading ? styles.disabledInput : {}) }}
                     disabled={isLoading}
                 />
@@ -380,7 +384,7 @@ const GenerateImage = () => {
                     ))}
                 </div>
 
-                {error && <div style={styles.error}>{error}</div>}
+                {error && <div style={styles.error} role="alert" id="form-error">{error}</div>}
 
                 {step === 1 && renderForm()}
                 {step === 2 && renderScenario()}
