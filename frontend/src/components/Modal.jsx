@@ -3,6 +3,7 @@ import React, { useId, useEffect, useRef } from 'react';
 const Modal = ({ isOpen, onClose, title, children }) => {
     const titleId = useId();
     const closeButtonRef = useRef(null);
+    const previousFocusRef = useRef(null);
 
     useEffect(() => {
         const handleKeyDown = (e) => {
@@ -22,10 +23,13 @@ const Modal = ({ isOpen, onClose, title, children }) => {
 
     useEffect(() => {
         if (isOpen) {
+            previousFocusRef.current = document.activeElement;
             const timer = setTimeout(() => {
                 closeButtonRef.current?.focus();
             }, 50);
             return () => clearTimeout(timer);
+        } else if (previousFocusRef.current) {
+            previousFocusRef.current.focus();
         }
     }, [isOpen]);
 
