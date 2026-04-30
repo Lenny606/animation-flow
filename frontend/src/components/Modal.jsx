@@ -3,6 +3,16 @@ import React, { useId, useEffect, useRef } from 'react';
 const Modal = ({ isOpen, onClose, title, children }) => {
     const titleId = useId();
     const closeButtonRef = useRef(null);
+    const previousFocusRef = useRef(null);
+
+    useEffect(() => {
+        if (isOpen) {
+            previousFocusRef.current = document.activeElement;
+        } else if (previousFocusRef.current) {
+            previousFocusRef.current.focus();
+            previousFocusRef.current = null;
+        }
+    }, [isOpen]);
 
     useEffect(() => {
         const handleKeyDown = (e) => {

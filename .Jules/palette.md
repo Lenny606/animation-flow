@@ -12,3 +12,7 @@
 ## 2025-05-15 - Modal Keyboard Accessibility
 **Learning:** When implementing custom modals in React, the browser's native dialog keyboard accessibility features are lost. This includes the ability to close the modal using the Escape key and automatically shifting focus to the modal when opened.
 **Action:** Always manually provide these accessibility features: add a `keydown` event listener for the `Escape` key to close the modal, and use a `ref` with a brief `setTimeout` to automatically shift initial focus to the close button when the modal opens. Ensure to separate the auto-focus logic into its own `useEffect` hook distinct from other event listeners.
+
+## 2026-04-30 - Modal Focus Restoration
+**Learning:** When creating custom modals, it is important to remember what element originally triggered the modal. If focus is not restored after the modal closes, keyboard and screen-reader users lose their place in the document flow, making the application harder to navigate.
+**Action:** Always capture the `document.activeElement` into a `useRef` when a modal opens, and call `.focus()` on that stored reference when the modal closes.
