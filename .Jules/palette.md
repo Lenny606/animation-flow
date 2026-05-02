@@ -16,3 +16,6 @@
 ## 2024-05-16 - Modal Keyboard Accessibility (Focus Restoration)
 **Learning:** In addition to capturing initial focus and providing `Escape` key support, custom React modals must restore focus to the element that triggered them when closed. If they don't, keyboard and screen reader users will lose their place in the DOM structure and focus will fall back to the body, breaking the navigation flow.
 **Action:** When creating custom modals, always use a `useRef` to capture `document.activeElement` right before the modal opens, and use an effect to call `.focus()` on that element reference right after the modal closes.
+## 2024-05-02 - Accessible Generated Media
+**Learning:** In multi-step generative AI workflows, screen readers often encounter generic "Scene 1" alt text or unlabeled video tags because the generation outputs are separated from their originating prompts.
+**Action:** Always map the final generated media assets (images, videos) back to their originating text prompts or scenario descriptions from previous steps in state to dynamically inject highly descriptive `alt` text and `aria-labels`.

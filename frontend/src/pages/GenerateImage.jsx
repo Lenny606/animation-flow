@@ -291,7 +291,7 @@ const GenerateImage = () => {
             <div style={styles.imageGrid}>
                 {images.map((img, idx) => (
                     <div key={idx} style={styles.imageCard}>
-                        <img src={img.image_url} alt={`Scene ${img.order}`} style={styles.image} />
+                        <img src={img.image_url} alt={`Scene ${img.order}: ${scenario?.scenes?.find(s => s.id === img.order)?.visual_description || 'AI generated scene'}`} style={styles.image} />
                         <p style={styles.imageLabel}>Frame {img.order}</p>
                     </div>
                 ))}
@@ -331,7 +331,7 @@ const GenerateImage = () => {
             <div style={styles.videoGrid}>
                 {videoAssets.map((asset, idx) => (
                     <div key={idx} style={styles.videoCard}>
-                        <video controls style={styles.video} src={asset.video_url}></video>
+                        <video controls style={styles.video} src={asset.video_url} aria-label={`Generated video by ${asset.provider}`}></video>
                         <p style={styles.imageLabel}>Format: {asset.provider}</p>
                     </div>
                 ))}
