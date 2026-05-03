@@ -19,3 +19,6 @@
 ## 2024-05-02 - Accessible Generated Media
 **Learning:** In multi-step generative AI workflows, screen readers often encounter generic "Scene 1" alt text or unlabeled video tags because the generation outputs are separated from their originating prompts.
 **Action:** Always map the final generated media assets (images, videos) back to their originating text prompts or scenario descriptions from previous steps in state to dynamically inject highly descriptive `alt` text and `aria-labels`.
+## 2026-05-03 - Password Toggle Accessibility & Styling
+**Learning:** When absolutely positioning a password visibility toggle button inside an input container, it is critical to add sufficient `paddingRight` to the input to prevent the typed text from overlapping the toggle button. Additionally, the toggle button must have a dynamic `aria-label` (e.g., 'Show password' / 'Hide password') to provide proper context to screen reader users depending on the current state.
+**Action:** Always implement right padding on password inputs when adding inline toggles, and verify dynamic `aria-label`s exist and change with state.
