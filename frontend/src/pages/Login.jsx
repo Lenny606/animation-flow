@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
@@ -63,26 +64,40 @@ const Login = () => {
                             style={{ ...styles.input, ...(isLoading ? styles.inputDisabled : {}) }}
                             placeholder="Enter your email"
                             disabled={isLoading}
+                            autoComplete="email"
+                            autoFocus
                         />
                     </div>
                     <div style={styles.inputGroup}>
                         <label htmlFor="password" style={styles.label}>
                             Password <span aria-hidden="true" style={{color: '#dc3545'}}>*</span>
                         </label>
-                        <input
-                            id="password"
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                            aria-invalid={!!error}
-                            aria-describedby={error ? "login-error" : undefined}
-                            style={{ ...styles.input, ...(isLoading ? styles.inputDisabled : {}) }}
-                            placeholder="Enter your password"
-                            disabled={isLoading}
-                        />
+                        <div style={{ position: 'relative' }}>
+                            <input
+                                id="password"
+                                type={showPassword ? "text" : "password"}
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                                aria-invalid={!!error}
+                                aria-describedby={error ? "login-error" : undefined}
+                                style={{ ...styles.input, paddingRight: '3rem', ...(isLoading ? styles.inputDisabled : {}) }}
+                                placeholder="Enter your password"
+                                disabled={isLoading}
+                                autoComplete="current-password"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                style={styles.passwordToggle}
+                                aria-label={showPassword ? "Hide password" : "Show password"}
+                                disabled={isLoading}
+                            >
+                                {showPassword ? "Hide" : "Show"}
+                            </button>
+                        </div>
                     </div>
-                    <button type="submit" style={{ ...styles.button, ...(isLoading ? styles.buttonDisabled : {}) }} disabled={isLoading}>
+                    <button type="submit" style={{ ...styles.button, ...(isLoading ? styles.buttonDisabled : {}) }} disabled={isLoading} aria-busy={isLoading}>
                         {isLoading ? 'Signing In...' : 'Sign In'}
                     </button>
                 </form>
@@ -136,6 +151,18 @@ const styles = {
         backgroundColor: '#e9ecef',
         cursor: 'not-allowed',
         opacity: 0.7,
+    },
+    passwordToggle: {
+        position: 'absolute',
+        right: '0.5rem',
+        top: '50%',
+        transform: 'translateY(-50%)',
+        background: 'none',
+        border: 'none',
+        color: '#666',
+        fontSize: '0.875rem',
+        cursor: 'pointer',
+        padding: '0.25rem',
     },
     button: {
         padding: '0.75rem',
