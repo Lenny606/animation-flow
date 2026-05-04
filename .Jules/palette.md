@@ -19,3 +19,6 @@
 ## 2024-05-02 - Accessible Generated Media
 **Learning:** In multi-step generative AI workflows, screen readers often encounter generic "Scene 1" alt text or unlabeled video tags because the generation outputs are separated from their originating prompts.
 **Action:** Always map the final generated media assets (images, videos) back to their originating text prompts or scenario descriptions from previous steps in state to dynamically inject highly descriptive `alt` text and `aria-labels`.
+## 2024-05-04 - Ensure Input Constraints Maintain Layouts
+**Learning:** When using absolute positioning for inner input elements (like toggles) and applying `paddingRight` to `width: '100%'` inputs styled via inline styles, failing to explicitly specify `boxSizing: 'border-box'` in the React element can cause the input to break its layout constraints, expanding past its container.
+**Action:** Always include `boxSizing: 'border-box'` in inline style objects for inputs when adding internal padding to accommodate absolutely positioned sibling elements.
