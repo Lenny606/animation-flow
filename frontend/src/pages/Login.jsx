@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
@@ -69,18 +70,28 @@ const Login = () => {
                         <label htmlFor="password" style={styles.label}>
                             Password <span aria-hidden="true" style={{color: '#dc3545'}}>*</span>
                         </label>
-                        <input
-                            id="password"
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                            aria-invalid={!!error}
-                            aria-describedby={error ? "login-error" : undefined}
-                            style={{ ...styles.input, ...(isLoading ? styles.inputDisabled : {}) }}
-                            placeholder="Enter your password"
-                            disabled={isLoading}
-                        />
+                        <div style={styles.passwordWrapper}>
+                            <input
+                                id="password"
+                                type={showPassword ? "text" : "password"}
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                                aria-invalid={!!error}
+                                aria-describedby={error ? "login-error" : undefined}
+                                style={{ ...styles.input, ...styles.passwordInput, ...(isLoading ? styles.inputDisabled : {}) }}
+                                placeholder="Enter your password"
+                                disabled={isLoading}
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                style={styles.toggleButton}
+                                aria-label={showPassword ? "Hide password" : "Show password"}
+                            >
+                                {showPassword ? "Hide" : "Show"}
+                            </button>
+                        </div>
                     </div>
                     <button type="submit" style={{ ...styles.button, ...(isLoading ? styles.buttonDisabled : {}) }} disabled={isLoading}>
                         {isLoading ? 'Signing In...' : 'Sign In'}
@@ -131,6 +142,26 @@ const styles = {
         borderRadius: '4px',
         border: '1px solid #ccc',
         fontSize: '1rem',
+        boxSizing: 'border-box',
+    },
+    passwordWrapper: {
+        position: 'relative',
+        display: 'flex',
+        alignItems: 'center',
+    },
+    passwordInput: {
+        paddingRight: '4rem',
+    },
+    toggleButton: {
+        position: 'absolute',
+        right: '0.5rem',
+        background: 'none',
+        border: 'none',
+        padding: '0.25rem 0.5rem',
+        fontSize: '0.875rem',
+        color: '#007bff',
+        cursor: 'pointer',
+        fontWeight: '500',
     },
     inputDisabled: {
         backgroundColor: '#e9ecef',

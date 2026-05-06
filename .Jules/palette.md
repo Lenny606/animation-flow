@@ -19,3 +19,7 @@
 ## 2024-05-02 - Accessible Generated Media
 **Learning:** In multi-step generative AI workflows, screen readers often encounter generic "Scene 1" alt text or unlabeled video tags because the generation outputs are separated from their originating prompts.
 **Action:** Always map the final generated media assets (images, videos) back to their originating text prompts or scenario descriptions from previous steps in state to dynamically inject highly descriptive `alt` text and `aria-labels`.
+
+## 2024-05-05 - Added Show Password toggle
+**Learning:** Added a Show Password toggle inside an absolutely positioned container. It's crucial to explicitly apply `boxSizing: 'border-box'` when working with 100% width inputs that use padding (like `paddingRight`) to prevent the toggle button from overflowing the container width.
+**Action:** Always add `boxSizing: 'border-box'` on inputs when adding padding to accommodate floating icons/toggles inside them to maintain layout stability.
