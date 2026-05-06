@@ -82,6 +82,7 @@ const styles = {
         alignItems: 'center',
         zIndex: 1000,
         backdropFilter: 'blur(4px)',
+        animation: 'overlayFadeIn 0.2s ease-out',
     },
     modal: {
         backgroundColor: '#fff',
@@ -122,9 +123,5 @@ const styles = {
         lineHeight: '1.6',
     },
 };
-
-// Add fade-in animation via standard CSS in a real app, 
-// but for this simple version we'll just use inline styles.
-// In a full app, I'd put this in index.css
 
 export default Modal;
