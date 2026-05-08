@@ -15,7 +15,11 @@ const Songs = () => {
 
     const fetchSongs = async () => {
         const apiUrl = import.meta.env.VITE_API_URL || '';
-        const normalizedApiUrl = apiUrl.startsWith('http') ? apiUrl : `https://${apiUrl}`;
+        let normalizedApiUrl = apiUrl.startsWith('http') ? apiUrl : `https://${apiUrl}`;
+        // Remove trailing slash if exists
+        normalizedApiUrl = normalizedApiUrl.replace(/\/$/, '');
+        
+        // Ensure we call /songs/ directly (without api/v1 if the backend is at root)
         const response = await fetch(`${normalizedApiUrl}/songs/`, {
             headers: getAuthHeaders(),
             credentials: 'include',

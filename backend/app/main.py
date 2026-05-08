@@ -39,6 +39,17 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.error(f"Failed to connect to Redis during startup: {e}")
 
+    # Verify database content
+    try:
+        current_db = await get_database()
+        if current_db is not None:
+            song_count = await current_db["songs"].count_documents({})
+            logger.info(f"Database connected: {settings.DATABASE_NAME}. Songs found: {song_count}")
+        else:
+            logger.error("Failed to get database instance")
+    except Exception as e:
+        logger.error(f"Error checking database content: {e}")
+
 
     yield
     # Shutdown
