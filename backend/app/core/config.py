@@ -4,7 +4,7 @@ from functools import lru_cache
 class Settings(BaseSettings):
     PROJECT_NAME: str = "AI Orchestration App"
     VERSION: str = "0.1.0"
-    API_V1_STR: str = "/api/v1"
+    API_V1_STR: str = ""
     LOG_FILE_PATH: str = "/app/logs/app.log"
     ERROR_LOG_FILE_PATH: str = "/app/logs/error.log"
     ENVIRONMENT: str = "development" # development, production
