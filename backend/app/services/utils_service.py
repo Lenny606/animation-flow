@@ -10,12 +10,14 @@ settings = get_settings()
 class UtilsService:
     def __init__(self):
         # Base directory for static files
-        # Assuming we want to save in backend/static/images
-        self.static_dir = Path("/home/tomas/my-projects/animation-flow/backend/static")
+        self.static_dir = Path("static")
         self.images_dir = self.static_dir / "images"
         
         # Ensure directories exist
-        self.images_dir.mkdir(parents=True, exist_ok=True)
+        try:
+            self.images_dir.mkdir(parents=True, exist_ok=True)
+        except (OSError, IOError) as e:
+            logger.warning(f"Could not create images directory: {e}")
 
     async def fetch_image_by_url(self, url: str, filename: Optional[str] = None) -> str:
         """
@@ -46,13 +48,15 @@ class UtilsService:
                 response = await client.get(url, follow_redirects=True)
                 response.raise_for_status()
                 
-                with open(target_path, "wb") as f:
-                    f.write(response.content)
-            
-            logger.info(f"Successfully saved image to {target_path}")
-            
-            # Return relative path for frontend access
-            return f"/static/images/{filename}"
+                try:
+                    with open(target_path, "wb") as f:
+                        f.write(response.content)
+                    logger.info(f"Successfully saved image to {target_path}")
+                    # Return relative path for frontend access
+                    return f"/static/images/{filename}"
+                except (OSError, IOError) as e:
+                    logger.warning(f"Could not save image locally: {e}")
+                    return url # Return original URL as fallback
             
         except Exception as e:
             logger.error(f"Failed to fetch image from {url}: {str(e)}")

@@ -69,28 +69,31 @@ class GeminiImageProvider(ImageProvider):
                 
                 image_data = response.generated_images[0].image
             # Create static directory if it doesn't exist
-            static_dir = Path("static/generated_images")
-            static_dir.mkdir(parents=True, exist_ok=True)
-            
-            filename = f"{uuid.uuid4()}.png"
-            file_path = static_dir / filename
-            
-            # image_data can be bytes or a PIL Image depending on the SDK behavior
-            # According to docs, it's often a PIL Image or bytes.
-            # Let's handle both.
-            if isinstance(image_data, bytes):
-                img = Image.open(io.BytesIO(image_data))
-                img.save(file_path)
-            else:
-                # Assume it's a PIL Image
-                image_data.save(file_path)
-            
-            logger.info(f"Image saved to {file_path}")
-            
-            # Use localhost in development, otherwise use BACKEND_URL
-            base_url = "http://localhost:8000" if settings.ENVIRONMENT == "development" else settings.BACKEND_URL
-            logger.info(f"Gemini Environment: {settings.ENVIRONMENT}, base_url: {base_url}")
-            return f"{base_url}/static/generated_images/{filename}"
+            try:
+                static_dir = Path("static/generated_images")
+                static_dir.mkdir(parents=True, exist_ok=True)
+                
+                filename = f"{uuid.uuid4()}.png"
+                file_path = static_dir / filename
+                
+                # image_data can be bytes or a PIL Image depending on the SDK behavior
+                if isinstance(image_data, bytes):
+                    img = Image.open(io.BytesIO(image_data))
+                    img.save(file_path)
+                else:
+                    # Assume it's a PIL Image
+                    image_data.save(file_path)
+                
+                logger.info(f"Image saved to {file_path}")
+                
+                # Use localhost in development, otherwise use BACKEND_URL
+                base_url = "http://localhost:8000" if settings.ENVIRONMENT == "development" else settings.BACKEND_URL
+                return f"{base_url}/static/generated_images/{filename}"
+            except (OSError, IOError) as e:
+                logger.warning(f"Could not save image locally (read-only filesystem?): {e}")
+                # For Gemini, if we can't save locally, we might not have a public URL to return
+                # unless we upload it somewhere else. For now, we return a placeholder or error.
+                return "https://placehold.co/1024x1024/3b82f6/white?text=Local+Save+Failed"
             
         except Exception as e:
             logger.error(f"Error in GeminiImageProvider: {e}")
@@ -124,27 +127,29 @@ class OpenAIImageProvider(ImageProvider):
                 return "https://placehold.co/1024x1024/ef4444/white?text=Generation+Failed"
 
             # Download and save the image locally
-            static_dir = Path("static/generated_images")
-            static_dir.mkdir(parents=True, exist_ok=True)
-            
-            filename = f"{uuid.uuid4()}.png"
-            file_path = static_dir / filename
-            
-            async with httpx.AsyncClient() as http_client:
-                image_response = await http_client.get(image_url)
-                if image_response.status_code == 200:
-                    with open(file_path, "wb") as f:
-                        f.write(image_response.content)
-                else:
-                    logger.error(f"Failed to download image from OpenAI: {image_response.status_code}")
-                    return image_url # Return original URL as fallback
-
-            logger.info(f"Image saved to {file_path}")
-            
-            # Use localhost in development, otherwise use BACKEND_URL
-            base_url = "http://localhost:8000" if settings.ENVIRONMENT == "development" else settings.BACKEND_URL
-            logger.info(f"OpenAI Environment: {settings.ENVIRONMENT}, base_url: {base_url}")
-            return f"{base_url}/static/generated_images/{filename}"
+            try:
+                static_dir = Path("static/generated_images")
+                static_dir.mkdir(parents=True, exist_ok=True)
+                
+                filename = f"{uuid.uuid4()}.png"
+                file_path = static_dir / filename
+                
+                async with httpx.AsyncClient() as http_client:
+                    image_response = await http_client.get(image_url)
+                    if image_response.status_code == 200:
+                        with open(file_path, "wb") as f:
+                            f.write(image_response.content)
+                        logger.info(f"Image saved to {file_path}")
+                        
+                        # Use localhost in development, otherwise use BACKEND_URL
+                        base_url = "http://localhost:8000" if settings.ENVIRONMENT == "development" else settings.BACKEND_URL
+                        return f"{base_url}/static/generated_images/{filename}"
+                    else:
+                        logger.error(f"Failed to download image from OpenAI: {image_response.status_code}")
+                        return image_url # Return original URL as fallback
+            except (OSError, IOError) as e:
+                logger.warning(f"Could not save image locally (read-only filesystem?): {e}")
+                return image_url # Return original OpenAI URL as fallback
             
         except Exception as e:
             logger.error(f"Error in OpenAIImageProvider: {e}")

@@ -12,7 +12,7 @@ from app.core.error_handling import UnauthorizedException
 settings = get_settings()
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl=f"{settings.API_V1_STR}/auth/token",
-    auto_error=not settings.DISABLE_AUTH
+    auto_error=False
 )
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:

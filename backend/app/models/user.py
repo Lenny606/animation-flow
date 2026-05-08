@@ -54,11 +54,12 @@ class UserInDB(UserBase):
         json_encoders = {ObjectId: str}
 
 class User(UserBase):
-    id: Optional[str] = Field(alias="_id", default=None, description="The unique identifier of the user", examples=["60d5ecb8b392d011f8871123"])
+    id: Optional[PyObjectId] = Field(alias="_id", default=None, description="The unique identifier of the user", examples=["60d5ecb8b392d011f8871123"])
     
     class Config:
         populate_by_name = True
         from_attributes = True
+        arbitrary_types_allowed = True
         json_schema_extra = {
             "example": {
                 "id": "60d5ecb8b392d011f8871123",

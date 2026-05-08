@@ -83,9 +83,12 @@ app.add_middleware(
 )
 
 # Ensure static directory exists
-static_path = Path("static")
-static_path.mkdir(exist_ok=True)
-(static_path / "generated_images").mkdir(exist_ok=True, parents=True)
+try:
+    static_path = Path("static")
+    static_path.mkdir(exist_ok=True)
+    (static_path / "generated_images").mkdir(exist_ok=True, parents=True)
+except (OSError, IOError) as e:
+    logger.warning(f"Could not create static directory: {e}")
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
