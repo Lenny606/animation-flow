@@ -83,14 +83,18 @@ app.add_middleware(
 )
 
 # Ensure static directory exists
+static_path = Path("static")
 try:
-    static_path = Path("static")
     static_path.mkdir(exist_ok=True)
     (static_path / "generated_images").mkdir(exist_ok=True, parents=True)
 except (OSError, IOError) as e:
-    logger.warning(f"Could not create static directory: {e}")
+    logger.warning(f"Could not create static directory (read-only filesystem?): {e}")
 
-app.mount("/static", StaticFiles(directory="static"), name="static")
+# Only mount if the directory exists
+if static_path.exists():
+    app.mount("/static", StaticFiles(directory="static"), name="static")
+else:
+    logger.warning("Static directory not found, skipping mount")
 
 app.add_exception_handler(HTTPException, http_error_handler)
 app.add_exception_handler(BaseAPIException, api_exception_handler)
