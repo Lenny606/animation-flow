@@ -23,3 +23,7 @@
 ## 2024-05-05 - Added Show Password toggle
 **Learning:** Added a Show Password toggle inside an absolutely positioned container. It's crucial to explicitly apply `boxSizing: 'border-box'` when working with 100% width inputs that use padding (like `paddingRight`) to prevent the toggle button from overflowing the container width.
 **Action:** Always add `boxSizing: 'border-box'` on inputs when adding padding to accommodate floating icons/toggles inside them to maintain layout stability.
+
+## 2024-05-08 - Dynamic Mapping of Media Assets & Spinner Utility
+**Learning:** Hardcoded aria-labels on generated media (like videos) lack context for screen readers when dealing with multiple sequential or varied generated assets. Furthermore, relying on text alone for loading buttons lacks immediate visual distinctiveness.
+**Action:** Implemented a reusable SVG spinner for asynchronous buttons, mapped to `isLoading` state, and dynamically embedded the originating text prompt (`formData.topic`) into the `<video>`'s `aria-label` to provide rich contextual feedback to screen readers.
