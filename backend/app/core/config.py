@@ -21,12 +21,12 @@ class Settings(BaseSettings):
     
     # Cookie Settings
     AUTH_COOKIE_NAME: str = "access_token"
-    COOKIE_SECURE: bool = False # Set to True in production
-    COOKIE_SAMESITE: str = "lax"
+    COOKIE_SECURE: bool = True 
+    COOKIE_SAMESITE: str = "none"
 
-    BACKEND_URL: str = "http://localhost:8000"
-    FRONTEND_URL: str = "http://localhost:5173"
-    CORS_ORIGINS: str = "http://localhost:5173,http://127.0.0.1:5173,http://localhost:5172,http://127.0.0.1:5172,http://localhost:3000,http://127.0.0.1:3000,https://animation-flow-lac.vercel.app,https://animation-flow-1pys.vercel.app"
+    BACKEND_URL: str = "https://animation-flow-r25n.vercel.app"
+    FRONTEND_URL: str = "https://animation-flow-r25n.vercel.app"
+    CORS_ORIGINS: str = "http://localhost:5173,http://127.0.0.1:5173,http://localhost:5172,http://127.0.0.1:5172,http://localhost:3000,http://127.0.0.1:3000,https://animation-flow-lac.vercel.app,https://animation-flow-1pys.vercel.app,https://animation-flow-r25n.vercel.app"
     
     # LangSmith Settings
     LANGCHAIN_TRACING_V2: str = "false"
