@@ -1,9 +1,11 @@
 FROM node:20-slim
 
+RUN npm install -g pnpm
+
 WORKDIR /app
 
-COPY frontend/package*.json ./
-RUN npm install
+COPY frontend/package.json frontend/pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
 
 COPY frontend/ ./
 
@@ -15,4 +17,4 @@ ENV VITE_DISABLE_AUTH=$VITE_DISABLE_AUTH
 
 EXPOSE 5173
 
-CMD ["npm", "run", "dev", "--", "--host"]
+CMD ["pnpm", "run", "dev", "--", "--host"]
