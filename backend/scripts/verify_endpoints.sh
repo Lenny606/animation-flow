@@ -1,10 +1,10 @@
 #!/bin/bash
 set -e
 
-BASE_URL="http://localhost:8000"
+BASE_URL="http://localhost:8000/api/v1"
 
 echo "1. Signup..."
-curl -s -X POST "$BASE_URL/auth/signup" \
+curl -s -X POST "$BASE_URL/auth/register" \
     -H "Content-Type: application/json" \
     -d '{"email": "test@example.com", "password": "password123"}' > signup_response.json
 cat signup_response.json

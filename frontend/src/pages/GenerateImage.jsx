@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSelection } from '../context/SelectionContext';
 
 const GenerateImage = () => {
     const navigate = useNavigate();
+    const { selection, toggleSongSelection, setStyleSelection } = useSelection();
     const [isLoading, setIsLoading] = useState(false);
     const [step, setStep] = useState(1); // 1: Form, 2: Scenario Ready, 3: Images Ready, 4: Plan Review, 5: Result
     const [error, setError] = useState('');
@@ -12,7 +14,7 @@ const GenerateImage = () => {
     // Form State
     const [formData, setFormData] = useState({
         topic: '',
-        style: 'cinematic',
+        style: 'pastel-cartoon',
         target_audience: 'General Audience',
         duration: 30,
         llm_provider: 'openai'
@@ -24,10 +26,8 @@ const GenerateImage = () => {
     const [videoAssets, setVideoAssets] = useState([]);
 
     const getAuthHeaders = () => {
-        const token = localStorage.getItem('token');
         return {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
         };
     };
 
@@ -37,9 +37,11 @@ const GenerateImage = () => {
             const normalizedApiUrl = apiUrl.startsWith('http') ? apiUrl : `https://${apiUrl}`;
             const response = await fetch(`${normalizedApiUrl}/songs/`, {
                 headers: getAuthHeaders(),
+                credentials: 'include',
             });
             if (response.ok) {
                 const data = await response.json();
+                console.log(data);
                 setSongs(data);
             }
         } catch (err) {
@@ -51,14 +53,29 @@ const GenerateImage = () => {
         fetchSongs();
     }, []);
 
+    useEffect(() => {
+        if (selection.song) {
+            setFormData(prev => ({
+                ...prev,
+                topic: `${selection.song.title}: ${selection.song.text.substring(0, 200)}`
+            }));
+        }
+    }, [selection.song]);
+
+    useEffect(() => {
+        if (selection.style) {
+            setFormData(prev => ({
+                ...prev,
+                style: selection.style
+            }));
+        }
+    }, [selection.style]);
+
     const handleSongSelect = (e) => {
         const songId = e.target.value;
         const selectedSong = songs.find(s => s._id === songId || s.id === songId);
         if (selectedSong) {
-            setFormData(prev => ({
-                ...prev,
-                topic: `${selectedSong.title}: ${selectedSong.text.substring(0, 200)}`
-            }));
+            toggleSongSelection(selectedSong);
             setShowSongSelect(false);
         }
     };
@@ -66,6 +83,10 @@ const GenerateImage = () => {
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
+        
+        if (name === 'style') {
+            setStyleSelection(value);
+        }
     };
 
     const handleGenerateScenario = async (e) => {
@@ -81,6 +102,7 @@ const GenerateImage = () => {
                 method: 'POST',
                 headers: getAuthHeaders(),
                 body: JSON.stringify(formData),
+                credentials: 'include',
             });
 
             const data = await response.json();
@@ -110,6 +132,7 @@ const GenerateImage = () => {
                     scenario: scenario,
                     llm_provider: formData.llm_provider
                 }),
+                credentials: 'include',
             });
 
             const data = await response.json();
@@ -144,6 +167,7 @@ const GenerateImage = () => {
                 method: 'POST',
                 headers: getAuthHeaders(),
                 body: JSON.stringify(requestBody),
+                credentials: 'include',
             });
 
             const data = await response.json();
@@ -170,6 +194,7 @@ const GenerateImage = () => {
                 method: 'POST',
                 headers: getAuthHeaders(),
                 body: JSON.stringify({ plan_id: plan.plan_id }),
+                credentials: 'include',
             });
 
             const data = await response.json();
@@ -242,10 +267,12 @@ const GenerateImage = () => {
                         style={{ ...styles.select, ...(isLoading ? styles.disabledInput : {}) }}
                         disabled={isLoading}
                     >
-                        <option value="cinematic">Cinematic</option>
-                        <option value="anime">Anime</option>
-                        <option value="3d-render">3D Render</option>
-                        <option value="sketch">Sketch</option>
+                        <option value="pastel-cartoon">Pastel Cartoon</option>
+                        <option value="watercolor-storybook">Watercolor Storybook</option>
+                        <option value="kawaii-cartoon">Kawaii Cartoon</option>
+                        <option value="crayon-drawing">Crayon Drawing</option>
+                        <option value="soft-3d-cartoon">Soft 3D Cartoon</option>
+                        <option value="paper-cut">Paper Cut Animation</option>
                     </select>
                 </div>
                 <div style={styles.inputGroup}>

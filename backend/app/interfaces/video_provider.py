@@ -48,13 +48,21 @@ class RunwayVideoProvider(BaseVideoProvider):
         # TODO: Implement actual API call
         raise NotImplementedError("Runway provider not fully implemented yet.")
 
+from app.core.config import get_settings, Settings
+from fastapi import Depends
+
 class VideoProviderFactory:
-    @staticmethod
-    def get_provider(provider_name: str = "mock") -> BaseVideoProvider:
+    def __init__(self, settings: Settings = Depends(get_settings)):
+        self.settings = settings
+
+    def get_provider(self, provider_name: str = "mock") -> BaseVideoProvider:
         if provider_name == "mock":
             return MockVideoProvider()
         elif provider_name == "runway":
-             api_key = os.getenv("RUNWAY_API_KEY") # Example
-             return RunwayVideoProvider(api_key)
+            api_key = self.settings.RUNWAY_API_KEY or os.getenv("RUNWAY_API_KEY") # Example
+            return RunwayVideoProvider(api_key)
         
         return MockVideoProvider() # Default to mock
+
+def get_video_provider_factory(settings: Settings = Depends(get_settings)) -> VideoProviderFactory:
+    return VideoProviderFactory(settings)
