@@ -213,12 +213,15 @@ const GenerateImage = () => {
         <form onSubmit={handleGenerateScenario} style={styles.form}>
             <div style={styles.inputGroup}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <label htmlFor="topic" style={styles.label}>Topic</label>
+                    <label htmlFor="topic" style={styles.label}>
+                        Topic <span aria-hidden="true" style={{color: '#dc2626'}}>*</span>
+                    </label>
                     {songs.length > 0 && (
                         <button
                             type="button"
                             onClick={() => setShowSongSelect(!showSongSelect)}
-                            style={styles.linkButton}
+                            style={{ ...styles.linkButton, ...(isLoading ? styles.disabledInput : {}) }}
+                            disabled={isLoading}
                         >
                             {showSongSelect ? 'Cancel' : 'Select from saved songs'}
                         </button>
@@ -227,9 +230,10 @@ const GenerateImage = () => {
                 {showSongSelect && (
                     <select
                         onChange={handleSongSelect}
-                        style={styles.songSelect}
-                        value={selection.song ? (selection.song._id || selection.song.id) : ""}
+                        style={{ ...styles.songSelect, ...(isLoading ? styles.disabledInput : {}) }}
+                        defaultValue=""
                         aria-label="Select a saved song"
+                        disabled={isLoading}
                     >
                         <option value="" disabled>-- Pick a song --</option>
                         {songs.map(song => (
@@ -246,7 +250,10 @@ const GenerateImage = () => {
                     onChange={handleInputChange}
                     placeholder="e.g. The future of robotics"
                     required
-                    style={styles.input}
+                    aria-invalid={!!error}
+                    aria-describedby={error ? "form-error" : undefined}
+                    style={{ ...styles.input, ...(isLoading ? styles.disabledInput : {}) }}
+                    disabled={isLoading}
                 />
             </div>
             <div style={styles.row}>
@@ -257,7 +264,8 @@ const GenerateImage = () => {
                         name="style"
                         value={formData.style}
                         onChange={handleInputChange}
-                        style={styles.select}
+                        style={{ ...styles.select, ...(isLoading ? styles.disabledInput : {}) }}
+                        disabled={isLoading}
                     >
                         <option value="pastel-cartoon">Pastel Cartoon</option>
                         <option value="watercolor-storybook">Watercolor Storybook</option>
@@ -275,11 +283,12 @@ const GenerateImage = () => {
                         name="duration"
                         value={formData.duration}
                         onChange={handleInputChange}
-                        style={styles.input}
+                        style={{ ...styles.input, ...(isLoading ? styles.disabledInput : {}) }}
+                        disabled={isLoading}
                     />
                 </div>
             </div>
-            <button type="submit" style={styles.primaryButton} disabled={isLoading}>
+            <button type="submit" style={{ ...styles.primaryButton, ...(isLoading ? styles.disabledButton : {}) }} disabled={isLoading}>
                 {isLoading ? 'Planning Storyboard...' : 'Generate Storyboard'}
             </button>
         </form>
@@ -297,7 +306,7 @@ const GenerateImage = () => {
             </div>
             <div style={styles.buttonGroup}>
                 <button onClick={() => setStep(1)} style={styles.secondaryButton}>Edit Prompt</button>
-                <button onClick={handleGenerateImages} style={styles.primaryButton} disabled={isLoading}>
+                <button onClick={handleGenerateImages} style={{ ...styles.primaryButton, ...(isLoading ? styles.disabledButton : {}) }} disabled={isLoading}>
                     {isLoading ? 'Generating Images...' : 'Generate AI Images'}
                 </button>
             </div>
@@ -309,14 +318,14 @@ const GenerateImage = () => {
             <div style={styles.imageGrid}>
                 {images.map((img, idx) => (
                     <div key={idx} style={styles.imageCard}>
-                        <img src={img.image_url} alt={`Scene ${img.order}`} style={styles.image} />
+                        <img src={img.image_url} alt={`Scene ${img.order}: ${scenario?.scenes?.find(s => s.id === img.order)?.visual_description || 'AI generated scene'}`} style={styles.image} />
                         <p style={styles.imageLabel}>Frame {img.order}</p>
                     </div>
                 ))}
             </div>
             <div style={styles.buttonGroupCenter}>
                 <button onClick={() => setStep(1)} style={styles.secondaryButton}>Start Over</button>
-                <button onClick={handleGeneratePlan} style={styles.primaryButton} disabled={isLoading}>
+                <button onClick={handleGeneratePlan} style={{ ...styles.primaryButton, ...(isLoading ? styles.disabledButton : {}) }} disabled={isLoading}>
                     {isLoading ? 'Generating Plan...' : 'Generate Video Plan'}
                 </button>
             </div>
@@ -336,7 +345,7 @@ const GenerateImage = () => {
             </div>
             <div style={styles.buttonGroup}>
                 <button onClick={() => setStep(3)} style={styles.secondaryButton}>Back to Images</button>
-                <button onClick={handleExecutePlan} style={styles.primaryButton} disabled={isLoading}>
+                <button onClick={handleExecutePlan} style={{ ...styles.primaryButton, ...(isLoading ? styles.disabledButton : {}) }} disabled={isLoading}>
                     {isLoading ? 'Executing Plan...' : 'Confirm & Execute'}
                 </button>
             </div>
@@ -349,7 +358,7 @@ const GenerateImage = () => {
             <div style={styles.videoGrid}>
                 {videoAssets.map((asset, idx) => (
                     <div key={idx} style={styles.videoCard}>
-                        <video controls style={styles.video} src={asset.video_url}></video>
+                        <video controls style={styles.video} src={asset.video_url} aria-label={`Generated video by ${asset.provider}`}></video>
                         <p style={styles.imageLabel}>Format: {asset.provider}</p>
                     </div>
                 ))}
@@ -373,7 +382,36 @@ const GenerateImage = () => {
                     {step === 5 && "Here is your generated video content."}
                 </p>
 
-                {error && <div style={styles.error}>{error}</div>}
+                <div
+                    style={styles.progressContainer}
+                    role="progressbar"
+                    aria-valuenow={step}
+                    aria-valuemin="1"
+                    aria-valuemax="5"
+                    aria-label="Generation progress"
+                >
+                    {[1, 2, 3, 4, 5].map((s) => (
+                        <div key={s} style={styles.stepIndicatorWrapper}>
+                            <div
+                                style={{
+                                    ...styles.stepDot,
+                                    ...(s < step ? styles.stepDotCompleted : s === step ? styles.stepDotActive : styles.stepDotInactive)
+                                }}
+                                aria-current={s === step ? "step" : undefined}
+                            >
+                                {s < step ? "✓" : s}
+                            </div>
+                            <div style={{
+                                ...styles.stepLabel,
+                                ...(s === step ? styles.stepLabelActive : {})
+                            }}>
+                                {['Setup', 'Story', 'Assets', 'Plan', 'Result'][s-1]}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                {error && <div style={styles.error} role="alert" id="form-error">{error}</div>}
 
                 {step === 1 && renderForm()}
                 {step === 2 && renderScenario()}
@@ -446,6 +484,11 @@ const styles = {
         fontSize: '1rem',
         transition: 'border-color 0.2s',
     },
+    disabledInput: {
+        backgroundColor: '#f1f5f9',
+        cursor: 'not-allowed',
+        opacity: 0.7,
+    },
     select: {
         padding: '0.75rem 1rem',
         borderRadius: '12px',
@@ -464,6 +507,11 @@ const styles = {
         cursor: 'pointer',
         transition: 'background-color 0.2s',
         marginTop: '1rem',
+    },
+    disabledButton: {
+        backgroundColor: '#94a3b8',
+        cursor: 'not-allowed',
+        opacity: 0.7,
     },
     secondaryButton: {
         padding: '1rem',
@@ -599,6 +647,58 @@ const styles = {
         fontSize: '0.9rem',
         backgroundColor: '#eff6ff',
         marginBottom: '0.5rem',
+    },
+    progressContainer: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        marginBottom: '2rem',
+        position: 'relative',
+        padding: '0 1rem',
+    },
+    stepIndicatorWrapper: {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: '0.5rem',
+        zIndex: 1,
+        width: '60px',
+    },
+    stepDot: {
+        width: '32px',
+        height: '32px',
+        borderRadius: '50%',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        fontWeight: 'bold',
+        fontSize: '0.875rem',
+        transition: 'all 0.3s ease',
+    },
+    stepDotInactive: {
+        backgroundColor: '#f1f5f9',
+        color: '#94a3b8',
+        border: '2px solid #e2e8f0',
+    },
+    stepDotActive: {
+        backgroundColor: '#3b82f6',
+        color: '#ffffff',
+        border: '2px solid #3b82f6',
+        boxShadow: '0 0 0 4px #eff6ff',
+    },
+    stepDotCompleted: {
+        backgroundColor: '#10b981',
+        color: '#ffffff',
+        border: '2px solid #10b981',
+    },
+    stepLabel: {
+        fontSize: '0.75rem',
+        color: '#64748b',
+        fontWeight: '500',
+        textAlign: 'center',
+    },
+    stepLabelActive: {
+        color: '#3b82f6',
+        fontWeight: '600',
     }
 };
 

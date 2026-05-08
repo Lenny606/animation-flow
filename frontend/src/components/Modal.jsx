@@ -1,7 +1,43 @@
-import React, { useId } from 'react';
+import React, { useId, useEffect, useRef } from 'react';
 
 const Modal = ({ isOpen, onClose, title, children }) => {
     const titleId = useId();
+    const closeButtonRef = useRef(null);
+    const triggerElementRef = useRef(null);
+
+    useEffect(() => {
+        if (isOpen) {
+            triggerElementRef.current = document.activeElement;
+        } else if (triggerElementRef.current) {
+            triggerElementRef.current.focus();
+            triggerElementRef.current = null;
+        }
+    }, [isOpen]);
+
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape') {
+                onClose();
+            }
+        };
+
+        if (isOpen) {
+            window.addEventListener('keydown', handleKeyDown);
+        }
+
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [isOpen, onClose]);
+
+    useEffect(() => {
+        if (isOpen) {
+            const timer = setTimeout(() => {
+                closeButtonRef.current?.focus();
+            }, 50);
+            return () => clearTimeout(timer);
+        }
+    }, [isOpen]);
 
     if (!isOpen) return null;
 
@@ -17,6 +53,7 @@ const Modal = ({ isOpen, onClose, title, children }) => {
                 <div style={styles.header}>
                     <h2 id={titleId} style={styles.title}>{title}</h2>
                     <button
+                        ref={closeButtonRef}
                         style={styles.closeButton}
                         onClick={onClose}
                         aria-label="Close modal"

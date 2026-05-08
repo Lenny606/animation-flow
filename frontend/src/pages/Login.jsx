@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
@@ -37,34 +38,52 @@ const Login = () => {
             <div style={styles.card}>
                 <h2 style={styles.title}>Login</h2>
                 <form onSubmit={handleSubmit} style={styles.form}>
-                    {error && <div style={styles.error}>{error}</div>}
+                    {error && <div style={styles.error} role="alert" id="login-error">{error}</div>}
                     <div style={styles.inputGroup}>
-                        <label htmlFor="email" style={styles.label}>Email</label>
+                        <label htmlFor="email" style={styles.label}>
+                            Email <span aria-hidden="true" style={{color: '#dc3545'}}>*</span>
+                        </label>
                         <input
                             id="email"
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
-                            style={styles.input}
+                            aria-invalid={!!error}
+                            aria-describedby={error ? "login-error" : undefined}
+                            style={{ ...styles.input, ...(isLoading ? styles.inputDisabled : {}) }}
                             placeholder="Enter your email"
                             disabled={isLoading}
                         />
                     </div>
                     <div style={styles.inputGroup}>
-                        <label htmlFor="password" style={styles.label}>Password</label>
-                        <input
-                            id="password"
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                            style={styles.input}
-                            placeholder="Enter your password"
-                            disabled={isLoading}
-                        />
+                        <label htmlFor="password" style={styles.label}>
+                            Password <span aria-hidden="true" style={{color: '#dc3545'}}>*</span>
+                        </label>
+                        <div style={styles.passwordWrapper}>
+                            <input
+                                id="password"
+                                type={showPassword ? "text" : "password"}
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                                aria-invalid={!!error}
+                                aria-describedby={error ? "login-error" : undefined}
+                                style={{ ...styles.input, ...styles.passwordInput, ...(isLoading ? styles.inputDisabled : {}) }}
+                                placeholder="Enter your password"
+                                disabled={isLoading}
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                style={styles.toggleButton}
+                                aria-label={showPassword ? "Hide password" : "Show password"}
+                            >
+                                {showPassword ? "Hide" : "Show"}
+                            </button>
+                        </div>
                     </div>
-                    <button type="submit" style={styles.button} disabled={isLoading}>
+                    <button type="submit" style={{ ...styles.button, ...(isLoading ? styles.buttonDisabled : {}) }} disabled={isLoading}>
                         {isLoading ? 'Signing In...' : 'Sign In'}
                     </button>
                 </form>
@@ -113,6 +132,31 @@ const styles = {
         borderRadius: '4px',
         border: '1px solid #ccc',
         fontSize: '1rem',
+        boxSizing: 'border-box',
+    },
+    passwordWrapper: {
+        position: 'relative',
+        display: 'flex',
+        alignItems: 'center',
+    },
+    passwordInput: {
+        paddingRight: '4rem',
+    },
+    toggleButton: {
+        position: 'absolute',
+        right: '0.5rem',
+        background: 'none',
+        border: 'none',
+        padding: '0.25rem 0.5rem',
+        fontSize: '0.875rem',
+        color: '#007bff',
+        cursor: 'pointer',
+        fontWeight: '500',
+    },
+    inputDisabled: {
+        backgroundColor: '#e9ecef',
+        cursor: 'not-allowed',
+        opacity: 0.7,
     },
     button: {
         padding: '0.75rem',
@@ -125,6 +169,11 @@ const styles = {
         cursor: 'pointer',
         marginTop: '1rem',
         transition: 'background-color 0.2s',
+    },
+    buttonDisabled: {
+        backgroundColor: '#6c757d',
+        cursor: 'not-allowed',
+        opacity: 0.7,
     },
     error: {
         color: '#dc3545',
