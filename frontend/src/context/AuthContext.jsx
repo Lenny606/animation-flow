@@ -7,6 +7,13 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
     const isAuthDisabled = import.meta.env.VITE_DISABLE_AUTH === 'true';
 
+    const getApiUrl = () => {
+        const apiUrl = import.meta.env.VITE_API_URL || '';
+        let normalized = apiUrl.startsWith('http') ? apiUrl : `https://${apiUrl}`;
+        // Remove trailing slash to prevent double slashes in paths
+        return normalized.endsWith('/') ? normalized.slice(0, -1) : normalized;
+    };
+
     const checkSession = async () => {
         if (isAuthDisabled) {
             setUser({ id: 'disabled', email: 'auth@disabled.com', full_name: 'Auth Disabled' });
@@ -15,9 +22,8 @@ export const AuthProvider = ({ children }) => {
         }
 
         try {
-            const apiUrl = import.meta.env.VITE_API_URL || '';
-            const normalizedApiUrl = apiUrl.startsWith('http') ? apiUrl : `https://${apiUrl}`;
-            const response = await fetch(`${normalizedApiUrl}/auth/me`, {
+            const apiUrl = getApiUrl();
+            const response = await fetch(`${apiUrl}/auth/me`, {
                 credentials: 'include',
             });
 
@@ -40,9 +46,8 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     const login = async (email, password) => {
-        const apiUrl = import.meta.env.VITE_API_URL || '';
-        const normalizedApiUrl = apiUrl.startsWith('http') ? apiUrl : `https://${apiUrl}`;
-        const response = await fetch(`${normalizedApiUrl}/auth/login`, {
+        const apiUrl = getApiUrl();
+        const response = await fetch(`${apiUrl}/auth/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -62,9 +67,8 @@ export const AuthProvider = ({ children }) => {
 
     const logout = async () => {
         try {
-            const apiUrl = import.meta.env.VITE_API_URL || '';
-            const normalizedApiUrl = apiUrl.startsWith('http') ? apiUrl : `https://${apiUrl}`;
-            await fetch(`${normalizedApiUrl}/auth/logout`, {
+            const apiUrl = getApiUrl();
+            await fetch(`${apiUrl}/auth/logout`, {
                 method: 'POST',
                 credentials: 'include',
             });
