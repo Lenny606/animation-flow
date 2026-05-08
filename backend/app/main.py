@@ -111,6 +111,10 @@ app.include_router(prompts.router, prefix=f"{settings.API_V1_STR}/prompts", tags
 
 @app.get("/")
 async def root():
-    return {"message": "Welcome to AI Orchestration API"}
+    return {"message": "Welcome to AI Orchestration API", "version": settings.VERSION}
+
+@app.get("/debug/routes")
+async def debug_routes():
+    return [{"path": route.path, "name": route.name} for route in app.routes]
 
 
