@@ -8,10 +8,8 @@ const Songs = () => {
     const { selection, toggleSongSelection } = useSelection();
 
     const getAuthHeaders = () => {
-        const token = localStorage.getItem('token');
         return {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
         };
     };
 
@@ -20,6 +18,7 @@ const Songs = () => {
         const normalizedApiUrl = apiUrl.startsWith('http') ? apiUrl : `https://${apiUrl}`;
         const response = await fetch(`${normalizedApiUrl}/songs/`, {
             headers: getAuthHeaders(),
+            credentials: 'include',
         });
         if (!response.ok) {
             throw new Error('Network response was not ok');

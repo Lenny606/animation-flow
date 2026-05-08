@@ -26,10 +26,8 @@ const GenerateImage = () => {
     const [videoAssets, setVideoAssets] = useState([]);
 
     const getAuthHeaders = () => {
-        const token = localStorage.getItem('token');
         return {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
         };
     };
 
@@ -39,6 +37,7 @@ const GenerateImage = () => {
             const normalizedApiUrl = apiUrl.startsWith('http') ? apiUrl : `https://${apiUrl}`;
             const response = await fetch(`${normalizedApiUrl}/songs/`, {
                 headers: getAuthHeaders(),
+                credentials: 'include',
             });
             if (response.ok) {
                 const data = await response.json();
@@ -103,6 +102,7 @@ const GenerateImage = () => {
                 method: 'POST',
                 headers: getAuthHeaders(),
                 body: JSON.stringify(formData),
+                credentials: 'include',
             });
 
             const data = await response.json();
@@ -132,6 +132,7 @@ const GenerateImage = () => {
                     scenario: scenario,
                     llm_provider: formData.llm_provider
                 }),
+                credentials: 'include',
             });
 
             const data = await response.json();
@@ -166,6 +167,7 @@ const GenerateImage = () => {
                 method: 'POST',
                 headers: getAuthHeaders(),
                 body: JSON.stringify(requestBody),
+                credentials: 'include',
             });
 
             const data = await response.json();
@@ -192,6 +194,7 @@ const GenerateImage = () => {
                 method: 'POST',
                 headers: getAuthHeaders(),
                 body: JSON.stringify({ plan_id: plan.plan_id }),
+                credentials: 'include',
             });
 
             const data = await response.json();

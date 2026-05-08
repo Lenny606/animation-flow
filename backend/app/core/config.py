@@ -18,6 +18,11 @@ class Settings(BaseSettings):
     SECRET_KEY: str = "changethiskeyinproduction"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    
+    # Cookie Settings
+    AUTH_COOKIE_NAME: str = "access_token"
+    COOKIE_SECURE: bool = False # Set to True in production
+    COOKIE_SAMESITE: str = "lax"
 
     BACKEND_URL: str = "http://localhost:8000"
     FRONTEND_URL: str = "http://localhost:5173"

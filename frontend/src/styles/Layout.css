@@ -142,3 +142,24 @@
     padding: 2rem;
     transition: margin-left var(--transition-speed);
 }
+
+.logout-button {
+    background-color: transparent;
+    border: 1px solid #ef4444;
+    color: #ef4444;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-left: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.logout-button:hover {
+    background-color: #ef4444;
+    color: white;
+}

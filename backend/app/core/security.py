@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from typing import Optional, Union, Annotated
 from jose import jwt, JWTError
 import bcrypt
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordBearer
 from app.core.config import get_settings
 from app.models.user import UserInDB, UserRole
@@ -47,6 +47,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     return encoded_jwt
 
 async def get_current_user(
+    request: Request,
     token: Annotated[Optional[str], Depends(oauth2_scheme)] = None,
     user_repo: UserRepository = Depends(get_user_repository)
 ) -> UserInDB:
@@ -58,6 +59,10 @@ async def get_current_user(
             role=UserRole.ADMIN
         )
 
+    if token is None:
+        # Try to get token from cookie if not in header
+        token = request.cookies.get(settings.AUTH_COOKIE_NAME)
+        
     if token is None:
         raise UnauthorizedException(detail="Not authenticated")
 

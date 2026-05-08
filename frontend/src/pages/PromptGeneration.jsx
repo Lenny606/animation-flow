@@ -104,6 +104,7 @@ const PromptGeneration = () => {
                     style: selection.style || 'pastel-cartoon',
                     image_count: selection.imageCount || 4
                 }),
+                credentials: 'include',
             });
 
             if (!response.ok) throw new Error('Failed to generate prompt');
@@ -137,6 +138,7 @@ const PromptGeneration = () => {
                     scene_index: sceneIdx,
                     current_prompts: currentPrompts
                 }),
+                credentials: 'include',
             });
 
             if (!response.ok) throw new Error('Failed to regenerate prompt');
