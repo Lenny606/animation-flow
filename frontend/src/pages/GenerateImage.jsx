@@ -1,7 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+
+const Spinner = () => (
+    <svg className="spinner" style={{ width: '1.25rem', height: '1.25rem', marginRight: '0.5rem', display: 'inline-block', verticalAlign: 'middle' }} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+    </svg>
+);
+
 const GenerateImage = () => {
+
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
     const [step, setStep] = useState(1); // 1: Form, 2: Scenario Ready, 3: Images Ready, 4: Plan Review, 5: Result
@@ -49,6 +58,7 @@ const GenerateImage = () => {
 
     useEffect(() => {
         fetchSongs();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const handleSongSelect = (e) => {
@@ -262,7 +272,7 @@ const GenerateImage = () => {
                 </div>
             </div>
             <button type="submit" style={{ ...styles.primaryButton, ...(isLoading ? styles.disabledButton : {}) }} disabled={isLoading}>
-                {isLoading ? 'Planning Storyboard...' : 'Generate Storyboard'}
+                {isLoading ? <><Spinner /> Planning Storyboard...</> : 'Generate Storyboard'}
             </button>
         </form>
     );
@@ -280,7 +290,7 @@ const GenerateImage = () => {
             <div style={styles.buttonGroup}>
                 <button onClick={() => setStep(1)} style={styles.secondaryButton}>Edit Prompt</button>
                 <button onClick={handleGenerateImages} style={{ ...styles.primaryButton, ...(isLoading ? styles.disabledButton : {}) }} disabled={isLoading}>
-                    {isLoading ? 'Generating Images...' : 'Generate AI Images'}
+                    {isLoading ? <><Spinner /> Generating Images...</> : 'Generate AI Images'}
                 </button>
             </div>
         </div>
@@ -299,7 +309,7 @@ const GenerateImage = () => {
             <div style={styles.buttonGroupCenter}>
                 <button onClick={() => setStep(1)} style={styles.secondaryButton}>Start Over</button>
                 <button onClick={handleGeneratePlan} style={{ ...styles.primaryButton, ...(isLoading ? styles.disabledButton : {}) }} disabled={isLoading}>
-                    {isLoading ? 'Generating Plan...' : 'Generate Video Plan'}
+                    {isLoading ? <><Spinner /> Generating Plan...</> : 'Generate Video Plan'}
                 </button>
             </div>
         </div>
@@ -319,7 +329,7 @@ const GenerateImage = () => {
             <div style={styles.buttonGroup}>
                 <button onClick={() => setStep(3)} style={styles.secondaryButton}>Back to Images</button>
                 <button onClick={handleExecutePlan} style={{ ...styles.primaryButton, ...(isLoading ? styles.disabledButton : {}) }} disabled={isLoading}>
-                    {isLoading ? 'Executing Plan...' : 'Confirm & Execute'}
+                    {isLoading ? <><Spinner /> Executing Plan...</> : 'Confirm & Execute'}
                 </button>
             </div>
         </div>
@@ -331,7 +341,7 @@ const GenerateImage = () => {
             <div style={styles.videoGrid}>
                 {videoAssets.map((asset, idx) => (
                     <div key={idx} style={styles.videoCard}>
-                        <video controls style={styles.video} src={asset.video_url} aria-label={`Generated video by ${asset.provider}`}></video>
+                        <video controls style={styles.video} src={asset.video_url} aria-label={`Generated video for "${formData.topic}" by ${asset.provider}`}></video>
                         <p style={styles.imageLabel}>Format: {asset.provider}</p>
                     </div>
                 ))}
