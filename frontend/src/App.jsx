@@ -11,7 +11,7 @@ import MainLayout from './components/MainLayout';
 import './App.css';
 
 const ProtectedRoute = ({ children }) => {
-  const { user, loading, isAuthenticated } = useAuth();
+  const { loading, isAuthenticated } = useAuth();
   
   if (loading) {
     return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>Loading...</div>;

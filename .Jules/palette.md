@@ -23,3 +23,7 @@
 ## 2024-05-05 - Added Show Password toggle
 **Learning:** Added a Show Password toggle inside an absolutely positioned container. It's crucial to explicitly apply `boxSizing: 'border-box'` when working with 100% width inputs that use padding (like `paddingRight`) to prevent the toggle button from overflowing the container width.
 **Action:** Always add `boxSizing: 'border-box'` on inputs when adding padding to accommodate floating icons/toggles inside them to maintain layout stability.
+
+## 2024-05-18 - Repeating Interactive Elements
+**Learning:** When rendering repeating interactive elements (like buttons or inputs) within a mapped array in React components, relying on visible generic labels (like "Copy" or an icon like "✨") makes them indistinguishable for screen reader users, as multiple items will announce identically.
+**Action:** Always add dynamic, contextual `aria-label` attributes to repeating interactive elements (e.g., `aria-label={"Copy prompt for Scene " + scene.id}`) to ensure they are uniquely identifiable by screen readers.

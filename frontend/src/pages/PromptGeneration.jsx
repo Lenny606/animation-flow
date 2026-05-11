@@ -31,6 +31,7 @@ const SceneCard = ({ idx, scene, hoveredIdx, setHoveredIdx, onRegenerate, isGlob
                 <button 
                     style={styles.inlineCopyBtn}
                     onClick={() => navigator.clipboard.writeText(scene.prompt)}
+                    aria-label={"Copy prompt for Scene " + (scene.scene || idx + 1)}
                 >
                     Copy
                 </button>
@@ -54,6 +55,7 @@ const SceneCard = ({ idx, scene, hoveredIdx, setHoveredIdx, onRegenerate, isGlob
                     }}
                     onClick={handleRefine}
                     disabled={isRegenerating || isGlobalGenerating || !feedback.trim()}
+                    aria-label={"Refine prompt for Scene " + (scene.scene || idx + 1)}
                 >
                     {isRegenerating ? '...' : '✨'}
                 </button>
@@ -218,7 +220,7 @@ const PromptGeneration = () => {
                             cleanJson = cleanJson.replace(/```/g, '').trim();
                         }
                         parsedData = JSON.parse(cleanJson);
-                    } catch (e) {
+                    } catch {
                         parsedData = null;
                     }
 

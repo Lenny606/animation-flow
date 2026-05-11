@@ -15,9 +15,9 @@ const Home = () => {
                         onClick={() => navigate('/generate')}
                         style={{
                             ...styles.ctaButton,
-                            ...(true ? styles.disabledCta : {})
+                            ...styles.disabledCta
                         }}
-                        disabled={true}
+                        disabled
                     >
                         Start Generation
                     </button>
