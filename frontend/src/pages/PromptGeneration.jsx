@@ -362,7 +362,6 @@ const styles = {
         cursor: 'pointer',
         width: 'fit-content',
         minWidth: '150px',
-        outline: 'none',
     },
     optionBtn: {
         padding: '0.6rem 1.2rem',
@@ -551,7 +550,6 @@ const styles = {
         borderRadius: '8px',
         border: '1px solid #e2e8f0',
         fontSize: '0.8rem',
-        outline: 'none',
         backgroundColor: 'white',
     },
     refineBtn: {
