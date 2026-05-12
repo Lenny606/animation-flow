@@ -101,6 +101,7 @@ const Songs = () => {
                                         e.stopPropagation();
                                         toggleSongSelection(song);
                                     }}
+                                    aria-label={(isSelected ? 'Unselect ' : 'Select ') + song.title}
                                 >
                                     {isSelected ? 'Unselect' : 'Select'}
                                 </button>
