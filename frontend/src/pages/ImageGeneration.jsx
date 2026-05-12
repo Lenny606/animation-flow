@@ -120,6 +120,7 @@ const ImageGeneration = () => {
                                 }}
                                 onClick={() => handleGenerateImage(idx, scene.prompt)}
                                 disabled={isGenerating[idx]}
+                                aria-label={(imageUrls[idx] ? "Regenerate image for Scene " : "Generate image for Scene ") + (scene.scene || idx + 1)}
                             >
                                 {isGenerating[idx] ? 'Working...' : (imageUrls[idx] ? 'Regenerate 🔄' : 'Generate Image ✨')}
                             </button>
